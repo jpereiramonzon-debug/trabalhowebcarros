@@ -23,4 +23,8 @@ public class JwtProperties {
         }
     }
 
+    public static Properties getProperties(){
+        return properties;
+    }
+
 }

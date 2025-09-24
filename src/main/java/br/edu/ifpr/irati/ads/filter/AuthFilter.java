@@ -1,5 +1,8 @@
 package br.edu.ifpr.irati.ads.filter;
 
+import br.edu.ifpr.irati.ads.util.JwtProperties;
+import br.edu.ifpr.irati.ads.util.JwtUtils;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.Cookie;
@@ -8,6 +11,7 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
+import java.util.Properties;
 
 
 @WebFilter(urlPatterns = {"/home.jsp",
@@ -34,7 +38,9 @@ public class AuthFilter implements Filter {
          */
         Cookie token = getToken((HttpServletRequest) servletRequest);
 
-        boolean valido = validarToken(token);
+        JwtProperties.loadProperties(((HttpServletRequest) servletRequest).getServletContext());
+        Properties props = JwtProperties.getProperties();
+        boolean valido = validarToken(token, props);
 
         if (valido){
             filterChain.doFilter(servletRequest, servletResponse);
@@ -44,13 +50,20 @@ public class AuthFilter implements Filter {
 
     }
 
-    private boolean validarToken(Cookie token) {
+    private boolean validarToken(Cookie token, Properties props) {
         boolean valido = false;
         if (token != null) {
             //buscar no banco de dados se existe o token
             //solicitado e a qual usuário corresponde
-            if (token.getValue().equals("8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918")) {
+            String jwtToken = token.getValue();
+            String jwtPasswd = props.getProperty("jwt_passwd");
+
+            //validar
+            try{
+                JwtUtils.validateToken(jwtToken, jwtPasswd);
                 valido = true;
+            }catch (Exception e){
+                System.out.println(e.getMessage());
             }
         }
         return valido;
