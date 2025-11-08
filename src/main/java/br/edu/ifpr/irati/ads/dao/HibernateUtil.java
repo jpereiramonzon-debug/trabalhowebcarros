@@ -1,6 +1,8 @@
 package br.edu.ifpr.irati.ads.dao;
 
 import br.edu.ifpr.irati.ads.model.Usuario;
+import br.edu.ifpr.irati.ads.model.Veiculo;
+import br.edu.ifpr.irati.ads.model.Proposta; // NOVO: Import da classe Proposta
 import org.hibernate.SessionFactory;
 import org.hibernate.boot.Metadata;
 import org.hibernate.boot.MetadataSources;
@@ -45,6 +47,8 @@ public class HibernateUtil {
 
             MetadataSources metadataSources = new MetadataSources(serviceRegistry);
             metadataSources.addAnnotatedClass(Usuario.class);
+            metadataSources.addAnnotatedClass(Veiculo.class);
+            metadataSources.addAnnotatedClass(Proposta.class); // NOVO: Adição da classe Proposta
             Metadata metadata = metadataSources.buildMetadata();
             sessionFactory = metadata.getSessionFactoryBuilder().build();
 

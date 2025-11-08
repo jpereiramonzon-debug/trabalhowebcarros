@@ -3,7 +3,7 @@ package br.edu.ifpr.irati.ads.servlet;
 import br.edu.ifpr.irati.ads.dao.HibernateUtil;
 import br.edu.ifpr.irati.ads.service.Service;
 import br.edu.ifpr.irati.ads.service.ServiceFactory;
-import br.edu.ifpr.irati.ads.service.UsuarioService;
+import br.edu.ifpr.irati.ads.service.PropostaService; // Import necessário para o cast
 import br.edu.ifpr.irati.ads.util.UrlParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,6 +20,17 @@ import java.io.IOException;
         "/usuario/create",
         "/usuario/update",
         "/usuario/delete",
+        "/veiculo/findbyid",
+        "/veiculo/findall",
+        "/veiculo/create",
+        "/veiculo/update",
+        "/veiculo/delete",
+        "/proposta/findbyid",
+        "/proposta/findall",
+        "/proposta/create",
+        "/proposta/update",
+        "/proposta/delete",
+        "/proposta/gerarcontrato" // NOVO: Mapeamento da funcionalidade de contrato
 })
 public class CRUDControleServlet extends HttpServlet {
 
@@ -36,6 +47,7 @@ public class CRUDControleServlet extends HttpServlet {
         try{
             UrlParser urlParser = new UrlParser(req.getServletPath());
             Service service = ServiceFactory.getService(urlParser.getEntity());
+
             switch (urlParser.getMethod()){
                 case "findbyid":
                     service.findById(req, resp, session);
@@ -52,8 +64,17 @@ public class CRUDControleServlet extends HttpServlet {
                 case "delete":
                     service.delete(req, resp, session);
                     break;
+                case "gerarcontrato": // NOVO: Tratamento do método de geração de PDF
+                    // É necessário fazer o cast para PropostaService para acessar o método específico
+                    if (service instanceof PropostaService) {
+                        ((PropostaService) service).gerarContrato(req, resp, session);
+                    } else {
+                        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Funcionalidade de contrato não disponível.");
+                    }
+                    break;
                 default:
                     //enviar para uma tela de 404.
+                    resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Método não encontrado.");
                     break;
             }
 

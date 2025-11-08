@@ -15,8 +15,16 @@ import java.util.Properties;
 
 
 @WebFilter(urlPatterns = {"/home.jsp",
-                          "/usuario/*",
-                          "/formusuario.jsp"})
+        "/usuario/*",
+        "/formusuario.jsp",
+        "/veiculo/*", // NOVO: Protege CRUD Veículo
+        "/formveiculo.jsp", // NOVO: Protege JSP Veículo
+        "/proposta/*", // NOVO: Protege CRUD Proposta
+        "/formproposta.jsp", // NOVO: Protege JSP Proposta
+        "/relatorio/*", // NOVO: Protege Relatórios
+        "/simulacao/*", // NOVO: Protege Simulação
+        "/simulacaofinanciamento.jsp" // NOVO: Protege JSP Simulação
+})
 public class AuthFilter implements Filter {
 
     @Override
@@ -36,16 +44,21 @@ public class AuthFilter implements Filter {
         /**
          * Lógica da aplicação de filtro
          */
-        Cookie token = getToken((HttpServletRequest) servletRequest);
+        HttpServletRequest req = (HttpServletRequest) servletRequest;
+        HttpServletResponse resp = (HttpServletResponse) servletResponse;
 
-        JwtProperties.loadProperties(((HttpServletRequest) servletRequest).getServletContext());
+        Cookie token = getToken(req);
+
+        JwtProperties.loadProperties(req.getServletContext());
         Properties props = JwtProperties.getProperties();
         boolean valido = validarToken(token, props);
 
         if (valido){
             filterChain.doFilter(servletRequest, servletResponse);
         }else{
-            ((HttpServletResponse) servletResponse).sendRedirect("login.jsp");
+            // CORREÇÃO ESSENCIAL: Redireciona para o caminho ABSOLUTO.
+            String contextPath = req.getContextPath();
+            resp.sendRedirect(contextPath + "/login.jsp");
         }
 
     }

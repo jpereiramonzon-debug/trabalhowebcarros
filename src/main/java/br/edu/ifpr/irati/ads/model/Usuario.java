@@ -25,18 +25,46 @@ public class Usuario {
     @Column(name = "senha", length = 100, nullable = false)
     private String senha;
 
+    // NOVO: Campos para dados de cliente
+    @Column(name = "cpf", length = 14) // Ex: 123.456.789-00
+    private String cpf;
+
+    @Column(name = "telefone", length = 20)
+    private String telefone;
+
+    @Column(name = "tipo", length = 20, nullable = false) // Ex: ADMIN, VENDEDOR, COMPRADOR, INTERESSADO
+    private String tipo;
+
     public Usuario() {
         id = 0L;
         nome = "";
         email = "";
         senha = "";
+        cpf = ""; // Inicialização dos novos campos
+        telefone = "";
+        tipo = "COMPRADOR"; // Define um tipo padrão
     }
 
+    // Construtor original (mantido por compatibilidade)
     public Usuario(Long id, String nome, String email, String senha) {
         this.id = id;
         this.nome = nome;
         this.email = email;
         this.senha = senha;
+        this.cpf = "";
+        this.telefone = "";
+        this.tipo = "COMPRADOR";
+    }
+
+    // NOVO: Construtor completo com todos os campos
+    public Usuario(Long id, String nome, String email, String senha, String cpf, String telefone, String tipo) {
+        this.id = id;
+        this.nome = nome;
+        this.email = email;
+        this.senha = senha;
+        this.cpf = cpf;
+        this.telefone = telefone;
+        this.tipo = tipo;
     }
 
     public Long getId() {return id;}
@@ -54,4 +82,17 @@ public class Usuario {
     public String getSenha() {return senha;}
 
     public void setSenha(String senha) {this.senha = senha;}
+
+    // NOVO: Getters e Setters
+    public String getCpf() {return cpf;}
+
+    public void setCpf(String cpf) {this.cpf = cpf;}
+
+    public String getTelefone() {return telefone;}
+
+    public void setTelefone(String telefone) {this.telefone = telefone;}
+
+    public String getTipo() {return tipo;}
+
+    public void setTipo(String tipo) {this.tipo = tipo;}
 }

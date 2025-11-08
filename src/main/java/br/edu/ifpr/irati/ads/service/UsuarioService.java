@@ -37,10 +37,26 @@ public class UsuarioService implements Service{
         String  nome = req.getParameter("nome");
         String email = req.getParameter("email");
         String senha = req.getParameter("senha");
+
+        // Leitura dos campos adicionais
+        String cpf = req.getParameter("cpf");
+        String telefone = req.getParameter("telefone");
+        String tipo = req.getParameter("tipo");
+
         Usuario usuario = dao.buscarPorId(id);
         usuario.setNome(nome);
         usuario.setEmail(email);
-        usuario.setSenha(senha);
+
+        // NOVO: Lógica para NÃO SOBRESCREVER a senha se o campo vier vazio
+        if (senha != null && !senha.trim().isEmpty()) {
+            usuario.setSenha(senha);
+        }
+
+        // Atualização dos campos adicionais
+        usuario.setCpf(cpf);
+        usuario.setTelefone(telefone);
+        usuario.setTipo(tipo);
+
         dao.alterar(usuario);
         req.getSession().setAttribute("usuario", new Usuario());
         req.getSession().setAttribute("usuarios", dao.buscarTodos());
@@ -51,11 +67,23 @@ public class UsuarioService implements Service{
     public void create(HttpServletRequest req, HttpServletResponse resp, Session session) throws ServletException, IOException {
 
         Dao<Usuario> dao = new GenericDao<>(Usuario.class, session);
-        Long id = Long.parseLong(req.getParameter("id"));
+        Long id = 0L;
+        try {
+            id = Long.parseLong(req.getParameter("id"));
+        } catch (NumberFormatException e) {
+            id = 0L;
+        }
+
         String  nome = req.getParameter("nome");
         String email = req.getParameter("email");
         String senha = req.getParameter("senha");
-        Usuario usuario = new Usuario(id, nome, email, senha);
+
+        // Leitura dos campos adicionais
+        String cpf = req.getParameter("cpf");
+        String telefone = req.getParameter("telefone");
+        String tipo = req.getParameter("tipo");
+
+        Usuario usuario = new Usuario(id, nome, email, senha, cpf, telefone, tipo);
         dao.salvar(usuario);
         req.getSession().setAttribute("usuario", new Usuario());
         req.getSession().setAttribute("usuarios", dao.buscarTodos());
