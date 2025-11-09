@@ -34,10 +34,13 @@ public class GenericDao<T> implements Dao<T> {
     public void salvar(T t) throws PersistenceException {
         Transaction transaction = null;
         try{
-            transaction = session.beginTransaction();
+            transaction = session.beginTransaction(); // INÍCIO DA TRANSAÇÃO
             session.persist(t);
-            transaction.commit();
+            transaction.commit(); // FIM DA TRANSAÇÃO
         }catch (HibernateException | NullPointerException e){
+            if (transaction != null) {
+                transaction.rollback(); // Rollback em caso de erro
+            }
             throw new PersistenceException(e.getMessage());
         }
     }
@@ -46,10 +49,13 @@ public class GenericDao<T> implements Dao<T> {
     public void alterar(T t) throws PersistenceException {
         Transaction transaction = null;
         try{
-            transaction = session.beginTransaction();
+            transaction = session.beginTransaction(); // INÍCIO DA TRANSAÇÃO
             session.merge(t);
-            transaction.commit();
+            transaction.commit(); // FIM DA TRANSAÇÃO
         }catch (HibernateException | NullPointerException e){
+            if (transaction != null) {
+                transaction.rollback(); // Rollback em caso de erro
+            }
             throw new PersistenceException(e.getMessage());
         }
     }
@@ -59,10 +65,13 @@ public class GenericDao<T> implements Dao<T> {
 
         Transaction transaction = null;
         try{
-            transaction = session.beginTransaction();
+            transaction = session.beginTransaction(); // INÍCIO DA TRANSAÇÃO
             session.remove(t);
-            transaction.commit();
+            transaction.commit(); // FIM DA TRANSAÇÃO
         }catch (HibernateException | NullPointerException e){
+            if (transaction != null) {
+                transaction.rollback(); // Rollback em caso de erro
+            }
             throw new PersistenceException(e.getMessage());
         }
 

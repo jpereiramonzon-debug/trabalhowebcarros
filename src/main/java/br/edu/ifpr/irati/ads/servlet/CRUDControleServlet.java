@@ -3,7 +3,7 @@ package br.edu.ifpr.irati.ads.servlet;
 import br.edu.ifpr.irati.ads.dao.HibernateUtil;
 import br.edu.ifpr.irati.ads.service.Service;
 import br.edu.ifpr.irati.ads.service.ServiceFactory;
-import br.edu.ifpr.irati.ads.service.PropostaService; // Import necessário para o cast
+import br.edu.ifpr.irati.ads.service.PropostaService;
 import br.edu.ifpr.irati.ads.util.UrlParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -30,21 +30,27 @@ import java.io.IOException;
         "/proposta/create",
         "/proposta/update",
         "/proposta/delete",
-        "/proposta/gerarcontrato" // NOVO: Mapeamento da funcionalidade de contrato
+        "/proposta/gerarcontrato"
 })
 public class CRUDControleServlet extends HttpServlet {
 
-    private Session session;
+    // REMOVIDO: A variável 'session' como campo de classe
 
     @Override
     public void init() throws ServletException {
-        session = HibernateUtil.getSessionFactory().openSession();
+        // REMOVIDO: A abertura única de sessão.
+        // A sessão será aberta e fechada por requisição.
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
+        Session session = null; // DECLARAÇÃO DA SESSÃO LOCAL
+
         try{
+            // ABRINDO SESSÃO POR REQUISIÇÃO (UNIT OF WORK)
+            session = HibernateUtil.getSessionFactory().openSession();
+
             UrlParser urlParser = new UrlParser(req.getServletPath());
             Service service = ServiceFactory.getService(urlParser.getEntity());
 
@@ -64,8 +70,7 @@ public class CRUDControleServlet extends HttpServlet {
                 case "delete":
                     service.delete(req, resp, session);
                     break;
-                case "gerarcontrato": // NOVO: Tratamento do método de geração de PDF
-                    // É necessário fazer o cast para PropostaService para acessar o método específico
+                case "gerarcontrato":
                     if (service instanceof PropostaService) {
                         ((PropostaService) service).gerarContrato(req, resp, session);
                     } else {
@@ -81,7 +86,11 @@ public class CRUDControleServlet extends HttpServlet {
 
         }catch (Exception e){
             throw new ServletException(e.getMessage());
+        }finally {
+            // FECHANDO SESSÃO APÓS A REQUISIÇÃO
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
         }
-
     }
 }

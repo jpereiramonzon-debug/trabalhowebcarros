@@ -23,14 +23,12 @@ public class RelatorioControleServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        // Inicializa a sessão do Hibernate
         session = HibernateUtil.getSessionFactory().openSession();
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            // Usa o UrlParser. O getMethod() retornará "propostas" para /relatorio/propostas
             UrlParser urlParser = new UrlParser(req.getServletPath());
             String relatorioType = urlParser.getMethod();
 
@@ -55,7 +53,7 @@ public class RelatorioControleServlet extends HttpServlet {
         // Salva a lista na requisição para ser exibida pelo JSP
         req.setAttribute("propostas", propostas);
 
-        // Encaminha para o JSP do relatório
-        req.getRequestDispatcher("/relatoriopropostas.jsp").forward(req, resp);
+        // CORREÇÃO: Usando ServletContext para resolver o caminho de forma mais robusta.
+        req.getServletContext().getRequestDispatcher("/relatoriopropostas.jsp").forward(req, resp);
     }
 }

@@ -33,12 +33,12 @@
     <%  } %>
 </head>
 <body>
-<div class="container">
-    <h2 class="mt-4 mb-4">Gestão de Usuários e Clientes</h2>
+<div class="container mt-5">
+    <h2 class="mb-4">Gestão de Usuários e Clientes</h2>
     <div class="row">
         <div class="col">
-            <table class="table table-hover table-responsive">
-                <thead>
+            <table class="table table-hover table-striped table-responsive">
+                <thead class="table-dark">
 
                 <tr>
                     <th scope="col">Nome</th>
@@ -58,9 +58,9 @@
                     <td><%=u.getCpf()%></td>
                     <td><%=u.getTipo()%></td>
                     <td class="text-end">
-                        <a class="btn btn-success" href="usuario/findbyid?id=<%=u.getId()%>" role="button">Alterar</a>
+                        <a class="btn btn-success btn-sm" href="usuario/findbyid?id=<%=u.getId()%>" role="button">Alterar</a>
 
-                        <a class="btn btn-danger" href="usuario/delete?id=<%=u.getId()%>" role="button">Excluir</a>
+                        <a class="btn btn-danger btn-sm" href="usuario/delete?id=<%=u.getId()%>" role="button">Excluir</a>
                     </td>
                 </tr>
                 <%}%>
@@ -80,10 +80,10 @@
     <div class="modal fade" tabindex="-1" id="cadastroModal" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
-                <div class="modal-header">
+                <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title" id="modalLabel">Usuário/Cliente</h5>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden"
@@ -142,7 +142,7 @@
 
                     <div class="mb-3">
                         <label for="tipo" class="form-label">Tipo (Perfil)</label>
-                        <select class="form-select" id="tipo" name="tipo" required>
+                        <select class="form-select" id="tipo" name="tipo" required onchange="toggleSenhaRequirement()">
                             <option value="COMPRADOR" <%= "COMPRADOR".equals(usuario.getTipo()) ? "selected" : "" %>>Comprador</option>
                             <option value="VENDEDOR" <%= "VENDEDOR".equals(usuario.getTipo()) ? "selected" : "" %>>Vendedor (Usuário do Sistema)</option>
                             <option value="ADMIN" <%= "ADMIN".equals(usuario.getTipo()) ? "selected" : "" %>>Administrador (Usuário do Sistema)</option>
@@ -156,12 +156,10 @@
                         <input type="password"
                                class="form-control"
                                id="senha"
-
                                name="senha"
                                aria-describedby="senhaHelp"
-
-                               value="<%=usuario.getSenha()%>" required>
-                        <div id="senhaHelp" class="form-text">Informe uma senha entre 6 e 10 caracteres. Necessário para login no sistema.</div>
+                               value="<%=usuario.getSenha()%>"
+                        > <div id="senhaHelp" class="form-text">Informe uma senha. Obrigatório para Vendedor e Administrador.</div>
                     </div>
                 </div>
 
@@ -176,7 +174,37 @@
 </form>
 
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    /**
+     * Controla o atributo 'required' do campo senha baseado no tipo de usuário selecionado.
+     */
+    function toggleSenhaRequirement() {
+        const tipoSelect = document.getElementById('tipo');
+        const senhaInput = document.getElementById('senha');
+        const tipo = tipoSelect.value;
+
+        const isSystemUser = (tipo === 'ADMIN' || tipo === 'VENDEDOR');
+
+        if (isSystemUser) {
+            senhaInput.setAttribute('required', 'required');
+        } else {
+            senhaInput.removeAttribute('required');
+        }
+    }
+
+    window.onload = function() {
+        <%  if (usuario.getId() > 0){ %>
+        const cadastroModal = new bootstrap.Modal('#cadastroModal');
+        cadastroModal.show();
+        <%  } %>
+
+        toggleSenhaRequirement();
+    };
+
+    document.getElementById('tipo').addEventListener('change', toggleSenhaRequirement);
+</script>
 </body>
 </html>

@@ -6,20 +6,17 @@
 <%@ page import="java.util.stream.Collectors" %>
 
 <%
-    // Recupera a lista de propostas do escopo da requisição (definido no Servlet)
     List<Proposta> propostas = (List<Proposta>) request.getAttribute("propostas");
 
     if (propostas == null){
         propostas = new ArrayList<>();
     }
 
-    // Lógica para indicadores/resumo (Funcionalidade Não-CRUD)
     int totalPropostas = propostas.size();
     long propostasAceitas = propostas.stream()
-            .filter(p -> "ACEITA".equals(p.getStatusNegociacao())) // Apenas ACEITA após a simplificação
+            .filter(p -> "ACEITA".equals(p.getStatusNegociacao()))
             .count();
 
-    // Calcula o valor total proposto (usando Java 8 Stream API)
     BigDecimal valorTotalProposto = propostas.stream()
             .map(Proposta::getValorProposto)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
@@ -35,12 +32,12 @@
           crossorigin="anonymous">
 </head>
 <body>
-<div class="container">
-    <h2 class="mt-4 mb-4">Relatório Gerencial de Propostas</h2>
+<div class="container mt-5">
+    <h2 class="mb-4 text-secondary">Relatório Gerencial de Propostas</h2>
 
     <div class="row mb-4">
         <div class="col-md-4">
-            <div class="card text-white bg-info mb-3">
+            <div class="card text-white bg-primary shadow-sm">
                 <div class="card-header">Total de Propostas</div>
                 <div class="card-body">
                     <h5 class="card-title"><%=totalPropostas%></h5>
@@ -48,7 +45,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card text-white bg-success mb-3">
+            <div class="card text-white bg-success shadow-sm">
                 <div class="card-header">Propostas Aceitas</div>
                 <div class="card-body">
                     <h5 class="card-title"><%=propostasAceitas%></h5>
@@ -56,7 +53,7 @@
             </div>
         </div>
         <div class="col-md-4">
-            <div class="card text-white bg-primary mb-3">
+            <div class="card text-white bg-info shadow-sm">
                 <div class="card-header">Valor Total Proposto</div>
                 <div class="card-body">
                     <h5 class="card-title">R$ <%=String.format("%,.2f", valorTotalProposto)%></h5>
@@ -67,8 +64,8 @@
 
     <h4>Detalhes das Propostas</h4>
     <div class="table-responsive">
-        <table class="table table-hover table-bordered">
-            <thead>
+        <table class="table table-hover table-bordered table-striped">
+            <thead class="table-dark">
             <tr>
                 <th scope="col">ID</th>
                 <th scope="col">Data</th>
@@ -98,7 +95,7 @@
     <a href="home.jsp" class="btn btn-secondary mb-4">Voltar ao Início</a>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 </body>
 </html>

@@ -17,13 +17,12 @@ import java.util.Properties;
 @WebFilter(urlPatterns = {"/home.jsp",
         "/usuario/*",
         "/formusuario.jsp",
-        "/veiculo/*", // NOVO: Protege CRUD Veículo
-        "/formveiculo.jsp", // NOVO: Protege JSP Veículo
-        "/proposta/*", // NOVO: Protege CRUD Proposta
-        "/formproposta.jsp", // NOVO: Protege JSP Proposta
-        "/relatorio/*", // NOVO: Protege Relatórios
-        "/simulacao/*", // NOVO: Protege Simulação
-        "/simulacaofinanciamento.jsp" // NOVO: Protege JSP Simulação
+        "/veiculo/*",
+        "/formveiculo.jsp",
+        "/proposta/*",
+        "/formproposta.jsp",
+        "/relatorio/*"
+        // Rotas de Portal do Cliente (Visualizar/Simular) foram removidas para se tornarem públicas
 })
 public class AuthFilter implements Filter {
 
@@ -56,7 +55,7 @@ public class AuthFilter implements Filter {
         if (valido){
             filterChain.doFilter(servletRequest, servletResponse);
         }else{
-            // CORREÇÃO ESSENCIAL: Redireciona para o caminho ABSOLUTO.
+            // Redireciona para o caminho ABSOLUTO do login.jsp
             String contextPath = req.getContextPath();
             resp.sendRedirect(contextPath + "/login.jsp");
         }

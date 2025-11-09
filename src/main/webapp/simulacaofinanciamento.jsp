@@ -5,7 +5,6 @@
 <%@ page import="java.util.ArrayList" %>
 
 <%
-    // Recupera os resultados da requisição, se houver
     List<Map<String, BigDecimal>> tabelaPrice = (List<Map<String, BigDecimal>>) request.getAttribute("tabelaPrice");
     BigDecimal valorFinanciado = (BigDecimal) request.getAttribute("valorFinanciado");
     BigDecimal valorVeiculo = (BigDecimal) request.getAttribute("valorVeiculo");
@@ -17,7 +16,6 @@
         tabelaPrice = new ArrayList<>();
     }
 
-    // Calcula o valor da prestação para o resumo
     BigDecimal prestacaoFixa = tabelaPrice.isEmpty() ? BigDecimal.ZERO : tabelaPrice.get(0).get("prestacao");
 %>
 <!DOCTYPE html>
@@ -27,22 +25,21 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
-          rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
-          crossorigin="anonymous">
+          rel="stylesheet" crossorigin="anonymous">
 </head>
 <body>
-<div class="container">
-    <h2 class="mt-4 mb-4">Simulação de Financiamento (Tabela Price)</h2>
+<div class="container mt-5">
+    <h2 class="mb-4">Simulação de Financiamento (Tabela Price)</h2>
 
-    <div class="card mb-4">
-        <div class="card-header">
+    <div class="card mb-4 shadow-sm border-primary">
+        <div class="card-header bg-primary text-white">
             Parâmetros da Simulação
         </div>
         <div class="card-body">
             <% if (erro != null) { %>
             <div class="alert alert-danger" role="alert"><%=erro%></div>
             <% } %>
-            <form method="post" action="simulacao/calcular">
+            <form method="post" action="<%= request.getContextPath() %>/simulacao/calcular">
                 <div class="row">
                     <div class="col-md-6 mb-3">
                         <label for="valorVeiculo" class="form-label">Valor do Veículo (R$)</label>
@@ -86,8 +83,8 @@
 
     <h4>Cronograma de Pagamentos (Tabela Price)</h4>
     <div class="table-responsive">
-        <table class="table table-hover table-bordered table-sm">
-            <thead>
+        <table class="table table-hover table-bordered table-striped table-sm">
+            <thead class="table-dark">
             <tr>
                 <th scope="col"># Parcela</th>
                 <th scope="col">Prestação (Fixa)</th>
@@ -112,7 +109,7 @@
     <% } %>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" integrity="sha384-IQsoLXl5PILFhosVNubq5LC7Qb9DXgDA9i+tQ8Zj3iwWAwPtgFTxbJ8NT4GN1R8p" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" integrity="sha384-cVKIPhGWiC2Al4u+LWgxfKTRIcfu0JTxR+EQDz/bgldoEyl4H0zUF0QKbrJ0EcQF" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
 </body>
 </html>
