@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page import="br.edu.ifpr.irati.ads.model.Proposta" %>
 <%@ page import="java.util.List" %>
 <%@ page import="java.util.ArrayList" %>
@@ -6,6 +8,7 @@
 <%@ page import="java.util.stream.Collectors" %>
 
 <%
+    // Bloco de processamento de dados mantido, conforme a regra de não alterar funcionalidades
     List<Proposta> propostas = (List<Proposta>) request.getAttribute("propostas");
 
     if (propostas == null){
@@ -20,6 +23,11 @@
     BigDecimal valorTotalProposto = propostas.stream()
             .map(Proposta::getValorProposto)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    // Configura variáveis no escopo 'request' para que o EL possa acessá-las
+    request.setAttribute("totalPropostas", totalPropostas);
+    request.setAttribute("propostasAceitas", propostasAceitas);
+    request.setAttribute("valorTotalProposto", valorTotalProposto);
 %>
 <!DOCTYPE html>
 <html>
@@ -40,7 +48,7 @@
             <div class="card text-white bg-primary shadow-sm">
                 <div class="card-header">Total de Propostas</div>
                 <div class="card-body">
-                    <h5 class="card-title"><%=totalPropostas%></h5>
+                    <h5 class="card-title">${totalPropostas}</h5>
                 </div>
             </div>
         </div>
@@ -48,7 +56,7 @@
             <div class="card text-white bg-success shadow-sm">
                 <div class="card-header">Propostas Aceitas</div>
                 <div class="card-body">
-                    <h5 class="card-title"><%=propostasAceitas%></h5>
+                    <h5 class="card-title">${propostasAceitas}</h5>
                 </div>
             </div>
         </div>
@@ -56,7 +64,7 @@
             <div class="card text-white bg-info shadow-sm">
                 <div class="card-header">Valor Total Proposto</div>
                 <div class="card-body">
-                    <h5 class="card-title">R$ <%=String.format("%,.2f", valorTotalProposto)%></h5>
+                    <h5 class="card-title">R$ <fmt:formatNumber value="${valorTotalProposto}" pattern="#,##0.00"/></h5>
                 </div>
             </div>
         </div>
@@ -64,7 +72,7 @@
 
     <h4>Detalhes das Propostas</h4>
     <div class="table-responsive">
-        <table class="table table-hover table-bordered table-striped">
+        <table class="table table-hover table-bordered table-striped table-sm">
             <thead class="table-dark">
             <tr>
                 <th scope="col">ID</th>
@@ -77,17 +85,17 @@
             </tr>
             </thead>
             <tbody>
-            <% for (Proposta p: propostas){ %>
-            <tr>
-                <td><%=p.getId()%></td>
-                <td><%=p.getDataProposta().toLocalDate()%></td>
-                <td><%=p.getVeiculo().getMarca() + " " + p.getVeiculo().getModelo()%></td>
-                <td><%=p.getCliente().getNome()%> (<%=p.getCliente().getTipo()%>)</td>
-                <td><%=p.getVendedor().getNome()%></td>
-                <td>R$ <%=String.format("%,.2f", p.getValorProposto())%></td>
-                <td><%=p.getStatusNegociacao()%></td>
-            </tr>
-            <%}%>
+            <c:forEach var="p" items="${propostas}">
+                <tr>
+                    <td>${p.id}</td>
+                    <td><fmt:formatDate value="${p.dataProposta}" pattern="yyyy-MM-dd"/></td>
+                    <td>${p.veiculo.marca} ${p.veiculo.modelo}</td>
+                    <td>${p.cliente.nome} (${p.cliente.tipo})</td>
+                    <td>${p.vendedor.nome}</td>
+                    <td>R$ <fmt:formatNumber value="${p.valorProposto}" pattern="#,##0.00"/></td>
+                    <td>${p.statusNegociacao}</td>
+                </tr>
+            </c:forEach>
             </tbody>
         </table>
     </div>

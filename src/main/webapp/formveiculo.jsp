@@ -1,20 +1,7 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="br.edu.ifpr.irati.ads.model.Veiculo" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%@ page import="java.math.BigDecimal" %>
-
-<%
-    Veiculo veiculo = (Veiculo) session.getAttribute("veiculo");
-    List<Veiculo> veiculos = (List<Veiculo>) session.getAttribute("veiculos");
-
-    if (veiculo == null){
-        veiculo = new Veiculo();
-    }
-    if (veiculos == null){
-        veiculos = new ArrayList<>();
-    }
-%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+<%-- Imports e declarações de variáveis locais removidos --%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -25,14 +12,14 @@
           rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
           crossorigin="anonymous">
 
-    <%  if (veiculo.getId() > 0){ %>
-    <script type="text/javascript">
-        window.onload = () => {
-            const cadastroModal = new bootstrap.Modal('#cadastroModal');
-            cadastroModal.show();
-        }
-    </script>
-    <%  } %>
+    <c:if test="${sessionScope.veiculo.id > 0}">
+        <script type="text/javascript">
+            window.onload = () => {
+                const cadastroModal = new bootstrap.Modal('#cadastroModal');
+                cadastroModal.show();
+            }
+        </script>
+    </c:if>
 </head>
 <body>
 <div class="container mt-5">
@@ -50,18 +37,18 @@
                 </tr>
                 </thead>
                 <tbody>
-                <% for (Veiculo v: veiculos){ %>
-                <tr>
-                    <td><%=v.getMarca()%></td>
-                    <td><%=v.getModelo()%></td>
-                    <td><%=v.getAno()%></td>
-                    <td>R$ <%=String.format("%,.2f", v.getPreco())%></td>
-                    <td class="text-end">
-                        <a class="btn btn-success btn-sm" href="veiculo/findbyid?id=<%=v.getId()%>" role="button">Alterar</a>
-                        <a class="btn btn-danger btn-sm" href="veiculo/delete?id=<%=v.getId()%>" role="button">Excluir</a>
-                    </td>
-                </tr>
-                <%}%>
+                <c:forEach var="v" items="${sessionScope.veiculos}">
+                    <tr>
+                        <td>${v.marca}</td>
+                        <td>${v.modelo}</td>
+                        <td>${v.ano}</td>
+                        <td>R$ <fmt:formatNumber value="${v.preco}" pattern="#,##0.00"/></td>
+                        <td class="text-end">
+                            <a class="btn btn-success btn-sm" href="veiculo/findbyid?id=${v.id}" role="button">Alterar</a>
+                            <a class="btn btn-danger btn-sm" href="veiculo/delete?id=${v.id}" role="button">Excluir</a>
+                        </td>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cadastroModal">
@@ -72,7 +59,7 @@
     </div>
 </div>
 
-<form method="post" action="veiculo/<%=veiculo.getId()==0?"create":"update"%>">
+<form method="post" action="veiculo/${sessionScope.veiculo.id == 0 ? 'create' : 'update'}">
     <div class="modal fade" tabindex="-1" id="cadastroModal" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -84,36 +71,36 @@
                     <input type="hidden"
                            id="id"
                            name="id"
-                           value="<%=veiculo.getId()%>">
+                           value="${sessionScope.veiculo.id}">
 
                     <div class="mb-3">
                         <label for="marca" class="form-label">Marca</label>
-                        <input type="text" class="form-control" id="marca" name="marca" value="<%=veiculo.getMarca()%>" required>
+                        <input type="text" class="form-control" id="marca" name="marca" value="${sessionScope.veiculo.marca}" required>
                     </div>
                     <div class="mb-3">
                         <label for="modelo" class="form-label">Modelo</label>
-                        <input type="text" class="form-control" id="modelo" name="modelo" value="<%=veiculo.getModelo()%>" required>
+                        <input type="text" class="form-control" id="modelo" name="modelo" value="${sessionScope.veiculo.modelo}" required>
                     </div>
                     <div class="mb-3">
                         <label for="ano" class="form-label">Ano</label>
-                        <input type="number" class="form-control" id="ano" name="ano" value="<%=veiculo.getAno()%>" required min="1900" max="2100">
+                        <input type="number" class="form-control" id="ano" name="ano" value="${sessionScope.veiculo.ano}" required min="1900" max="2100">
                     </div>
                     <div class="mb-3">
                         <label for="quilometragem" class="form-label">Quilometragem (Km)</label>
-                        <input type="number" class="form-control" id="quilometragem" name="quilometragem" value="<%=veiculo.getQuilometragem()%>" required min="0">
+                        <input type="number" class="form-control" id="quilometragem" name="quilometragem" value="${sessionScope.veiculo.quilometragem}" required min="0">
                     </div>
                     <div class="mb-3">
                         <label for="preco" class="form-label">Preço (R$)</label>
-                        <input type="number" step="0.01" class="form-control" id="preco" name="preco" value="<%=veiculo.getPreco()%>" required min="0">
+                        <input type="number" step="0.01" class="form-control" id="preco" name="preco" value="${sessionScope.veiculo.preco}" required min="0">
                     </div>
                     <div class="mb-3">
                         <label for="fotosUrl" class="form-label">URL da Foto</label>
-                        <input type="url" class="form-control" id="fotosUrl" name="fotosUrl" value="<%=veiculo.getFotosUrl()%>">
+                        <input type="url" class="form-control" id="fotosUrl" name="fotosUrl" value="${sessionScope.veiculo.fotosUrl}">
                         <div id="fotosUrlHelp" class="form-text">Link para a imagem principal do veículo.</div>
                     </div>
                     <div class="mb-3">
                         <label for="historico" class="form-label">Histórico/Detalhes</label>
-                        <textarea class="form-control" id="historico" name="historico" rows="3"><%=veiculo.getHistorico()%></textarea>
+                        <textarea class="form-control" id="historico" name="historico" rows="3">${sessionScope.veiculo.historico}</textarea>
                         <div id="historicoHelp" class="form-text">Informações sobre o estado e procedência do veículo.</div>
                     </div>
 

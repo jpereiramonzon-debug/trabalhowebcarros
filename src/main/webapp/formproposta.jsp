@@ -1,4 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ page import="br.edu.ifpr.irati.ads.model.Proposta" %>
 <%@ page import="br.edu.ifpr.irati.ads.model.Veiculo" %>
 <%@ page import="br.edu.ifpr.irati.ads.model.Usuario" %>
@@ -10,6 +12,7 @@
 <%@ page import="java.math.BigDecimal" %>
 
 <%
+    // Bloco de controle de sessão/dados mantido, conforme a regra de não alterar funcionalidades
     Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
     GenericDao<Veiculo> veiculoDao = new GenericDao<>(Veiculo.class, hibernateSession);
     GenericDao<Usuario> usuarioDao = new GenericDao<>(Usuario.class, hibernateSession);
@@ -27,6 +30,13 @@
     if (propostas == null){
         propostas = new ArrayList<>();
     }
+
+    // Configura variáveis no escopo 'request' para que o EL possa acessá-las
+    request.setAttribute("veiculosDisponiveis", veiculosDisponiveis);
+    request.setAttribute("clientesDisponiveis", clientesDisponiveis);
+    request.setAttribute("vendedoresDisponiveis", vendedoresDisponiveis);
+    request.setAttribute("proposta", proposta);
+    request.setAttribute("propostas", propostas);
 %>
 <!DOCTYPE html>
 <html>
@@ -38,14 +48,14 @@
           rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
           crossorigin="anonymous">
 
-    <%  if (proposta.getId() > 0){ %>
-    <script type="text/javascript">
-        window.onload = () => {
-            const cadastroModal = new bootstrap.Modal('#cadastroModal');
-            cadastroModal.show();
-        }
-    </script>
-    <%  } %>
+    <c:if test="${proposta.id > 0}">
+        <script type="text/javascript">
+            window.onload = () => {
+                const cadastroModal = new bootstrap.Modal('#cadastroModal');
+                cadastroModal.show();
+            }
+        </script>
+    </c:if>
 </head>
 <body>
 <div class="container mt-5">
@@ -65,24 +75,24 @@
                 </tr>
                 </thead>
                 <tbody>
-                <% for (Proposta p: propostas){ %>
-                <tr>
-                    <td><%=p.getDataProposta().toLocalDate()%></td>
-                    <td><%=p.getVeiculo().getMarca() + " " + p.getVeiculo().getModelo()%></td>
-                    <td><%=p.getCliente().getNome()%></td>
-                    <td><%=p.getVendedor().getNome()%></td>
-                    <td>R$ <%=String.format("%,.2f", p.getValorProposto())%></td>
-                    <td><%=p.getStatusNegociacao()%></td>
-                    <td class="text-end">
-                        <a class="btn btn-success btn-sm" href="proposta/findbyid?id=<%=p.getId()%>" role="button">Alterar</a>
-                        <a class="btn btn-danger btn-sm" href="proposta/delete?id=<%=p.getId()%>" role="button">Excluir</a>
+                <c:forEach var="p" items="${propostas}">
+                    <tr>
+                        <td><fmt:formatDate value="${p.dataProposta}" pattern="yyyy-MM-dd"/></td>
+                        <td>${p.veiculo.marca} ${p.veiculo.modelo}</td>
+                        <td>${p.cliente.nome}</td>
+                        <td>${p.vendedor.nome}</td>
+                        <td>R$ <fmt:formatNumber value="${p.valorProposto}" pattern="#,##0.00"/></td>
+                        <td>${p.statusNegociacao}</td>
+                        <td class="text-end">
+                            <a class="btn btn-success btn-sm" href="proposta/findbyid?id=${p.id}" role="button">Alterar</a>
+                            <a class="btn btn-danger btn-sm" href="proposta/delete?id=${p.id}" role="button">Excluir</a>
 
-                        <% if ("ACEITA".equals(p.getStatusNegociacao())) { %>
-                        <a class="btn btn-info btn-sm text-white" href="proposta/gerarcontrato?id=<%=p.getId()%>" target="_blank" role="button">Gerar Contrato (PDF)</a>
-                        <% } %>
-                    </td>
-                </tr>
-                <%}%>
+                            <c:if test="${p.statusNegociacao == 'ACEITA'}">
+                                <a class="btn btn-info btn-sm text-white" href="proposta/gerarcontrato?id=${p.id}" target="_blank" role="button">Gerar Contrato (PDF)</a>
+                            </c:if>
+                        </td>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cadastroModal">
@@ -93,7 +103,7 @@
     </div>
 </div>
 
-<form method="post" action="proposta/<%=proposta.getId()==0?"create":"update"%>">
+<form method="post" action="proposta/${proposta.id == 0 ? 'create' : 'update'}">
     <div class="modal fade" tabindex="-1" id="cadastroModal" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -102,17 +112,17 @@
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    <input type="hidden" id="id" name="id" value="<%=proposta.getId()%>">
+                    <input type="hidden" id="id" name="id" value="${proposta.id}">
 
                     <div class="mb-3">
                         <label for="veiculoId" class="form-label">Veículo</label>
                         <select class="form-select" id="veiculoId" name="veiculoId" required>
                             <option value="">Selecione um Veículo</option>
-                            <% for (Veiculo v : veiculosDisponiveis) { %>
-                            <option value="<%=v.getId()%>" <%= v.getId().equals(proposta.getVeiculo().getId()) ? "selected" : "" %>>
-                                <%=v.getMarca()%> <%=v.getModelo()%> (R$ <%=String.format("%,.2f", v.getPreco())%>)
-                            </option>
-                            <% } %>
+                            <c:forEach var="v" items="${veiculosDisponiveis}">
+                                <option value="${v.id}" ${v.id == proposta.veiculo.id ? 'selected' : ''}>
+                                        ${v.marca} ${v.modelo} (R$ <fmt:formatNumber value="${v.preco}" pattern="#,##0.00"/>)
+                                </option>
+                            </c:forEach>
                         </select>
                     </div>
 
@@ -120,12 +130,13 @@
                         <label for="clienteId" class="form-label">Cliente (Comprador)</label>
                         <select class="form-select" id="clienteId" name="clienteId" required>
                             <option value="">Selecione um Cliente</option>
-                            <% for (Usuario u : clientesDisponiveis) {
-                                if (!"ADMIN".equals(u.getTipo()) && !"VENDEDOR".equals(u.getTipo())) { %>
-                            <option value="<%=u.getId()%>" <%= u.getId().equals(proposta.getCliente().getId()) ? "selected" : "" %>>
-                                <%=u.getNome()%> (<%=u.getTipo()%>)
-                            </option>
-                            <% }} %>
+                            <c:forEach var="u" items="${clientesDisponiveis}">
+                                <c:if test="${u.tipo != 'ADMIN' && u.tipo != 'VENDEDOR'}">
+                                    <option value="${u.id}" ${u.id == proposta.cliente.id ? 'selected' : ''}>
+                                            ${u.nome} (${u.tipo})
+                                    </option>
+                                </c:if>
+                            </c:forEach>
                         </select>
                     </div>
 
@@ -133,30 +144,31 @@
                         <label for="vendedorId" class="form-label">Vendedor (Usuário do Sistema)</label>
                         <select class="form-select" id="vendedorId" name="vendedorId" required>
                             <option value="">Selecione um Vendedor</option>
-                            <% for (Usuario u : vendedoresDisponiveis) {
-                                if ("ADMIN".equals(u.getTipo()) || "VENDEDOR".equals(u.getTipo())) { %>
-                            <option value="<%=u.getId()%>" <%= u.getId().equals(proposta.getVendedor().getId()) ? "selected" : "" %>>
-                                <%=u.getNome()%> (<%=u.getTipo()%>)
-                            </option>
-                            <% }} %>
+                            <c:forEach var="u" items="${vendedoresDisponiveis}">
+                                <c:if test="${u.tipo == 'ADMIN' || u.tipo == 'VENDEDOR'}">
+                                    <option value="${u.id}" ${u.id == proposta.vendedor.id ? 'selected' : ''}>
+                                            ${u.nome} (${u.tipo})
+                                    </option>
+                                </c:if>
+                            </c:forEach>
                         </select>
                     </div>
 
                     <div class="mb-3">
                         <label for="valorProposto" class="form-label">Valor Proposto (R$)</label>
-                        <input type="number" step="0.01" class="form-control" id="valorProposto" name="valorProposto" value="<%=proposta.getValorProposto()%>" required min="0">
+                        <input type="number" step="0.01" class="form-control" id="valorProposto" name="valorProposto" value="${proposta.valorProposto}" required min="0">
                     </div>
 
-                    <% if (proposta.getId() > 0) { %>
-                    <div class="mb-3">
-                        <label for="statusNegociacao" class="form-label">Status da Negociação</label>
-                        <select class="form-select" id="statusNegociacao" name="statusNegociacao" required>
-                            <option value="EM_NEGOCIACAO" <%= "EM_NEGOCIACAO".equals(proposta.getStatusNegociacao()) ? "selected" : "" %>>Em Negociação</option>
-                            <option value="ACEITA" <%= "ACEITA".equals(proposta.getStatusNegociacao()) ? "selected" : "" %>>Aceita</option>
-                        </select>
-                        <div class="form-text">Para gerar o contrato, o status deve ser ACEITA.</div>
-                    </div>
-                    <% } %>
+                    <c:if test="${proposta.id > 0}">
+                        <div class="mb-3">
+                            <label for="statusNegociacao" class="form-label">Status da Negociação</label>
+                            <select class="form-select" id="statusNegociacao" name="statusNegociacao" required>
+                                <option value="EM_NEGOCIACAO" ${proposta.statusNegociacao == 'EM_NEGOCIACAO' ? 'selected' : ''}>Em Negociação</option>
+                                <option value="ACEITA" ${proposta.statusNegociacao == 'ACEITA' ? 'selected' : ''}>Aceita</option>
+                            </select>
+                            <div class="form-text">Para gerar o contrato, o status deve ser ACEITA.</div>
+                        </div>
+                    </c:if>
 
                 </div>
                 <div class="modal-footer">
@@ -169,6 +181,7 @@
 </form>
 
 <%
+    // Bloco de cleanup mantido
     hibernateSession.close();
 %>
 

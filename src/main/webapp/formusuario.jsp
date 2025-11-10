@@ -1,17 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
-<%@ page import="br.edu.ifpr.irati.ads.model.Usuario" %>
-<%@ page import="java.util.List" %>
-<%@ page import="java.util.ArrayList" %>
-<%
-    Usuario usuario = (Usuario) session.getAttribute("usuario");
-    List<Usuario> usuarios = (List<Usuario>) session.getAttribute("usuarios");
-    if (usuario == null){
-        usuario = new Usuario();
-    }
-    if (usuarios == null){
-        usuarios = new ArrayList<>();
-    }
-%>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%-- Imports e declarações de variáveis locais removidos --%>
 <!DOCTYPE html>
 <html>
 <head>
@@ -21,16 +10,15 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css"
           rel="stylesheet" integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC"
           crossorigin="anonymous">
-    <%  if (usuario.getId() > 0){ %>
-    <script type="text/javascript">
-        window.onload = () => {
-            const cadastroModal = new
-            bootstrap.Modal('#cadastroModal');
-            cadastroModal.show();
-        }
-    </script>
 
-    <%  } %>
+    <c:if test="${sessionScope.usuario.id > 0}">
+        <script type="text/javascript">
+            window.onload = () => {
+                const cadastroModal = new bootstrap.Modal('#cadastroModal');
+                cadastroModal.show();
+            }
+        </script>
+    </c:if>
 </head>
 <body>
 <div class="container mt-5">
@@ -39,7 +27,6 @@
         <div class="col">
             <table class="table table-hover table-striped table-responsive">
                 <thead class="table-dark">
-
                 <tr>
                     <th scope="col">Nome</th>
                     <th scope="col">Email</th>
@@ -47,24 +34,20 @@
                     <th scope="col">Tipo</th>
                     <th></th>
                 </tr>
-
                 </thead>
                 <tbody>
-                <% for (Usuario u: usuarios){ %>
-                <tr>
-
-                    <td><%=u.getNome()%></td>
-                    <td><%=u.getEmail()%></td>
-                    <td><%=u.getCpf()%></td>
-                    <td><%=u.getTipo()%></td>
-                    <td class="text-end">
-                        <a class="btn btn-success btn-sm" href="usuario/findbyid?id=<%=u.getId()%>" role="button">Alterar</a>
-
-                        <a class="btn btn-danger btn-sm" href="usuario/delete?id=<%=u.getId()%>" role="button">Excluir</a>
-                    </td>
-                </tr>
-                <%}%>
-
+                <c:forEach var="u" items="${sessionScope.usuarios}">
+                    <tr>
+                        <td>${u.nome}</td>
+                        <td>${u.email}</td>
+                        <td>${u.cpf}</td>
+                        <td>${u.tipo}</td>
+                        <td class="text-end">
+                            <a class="btn btn-success btn-sm" href="usuario/findbyid?id=${u.id}" role="button">Alterar</a>
+                            <a class="btn btn-danger btn-sm" href="usuario/delete?id=${u.id}" role="button">Excluir</a>
+                        </td>
+                    </tr>
+                </c:forEach>
                 </tbody>
             </table>
             <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#cadastroModal">
@@ -73,38 +56,31 @@
             <a href="home.jsp" class="btn btn-secondary">Voltar ao Início</a>
         </div>
     </div>
-
 </div>
 
-<form method="post" action="usuario/<%=usuario.getId()==0?"create":"update"%>">
+<form method="post" action="usuario/${sessionScope.usuario.id == 0 ? 'create' : 'update'}">
     <div class="modal fade" tabindex="-1" id="cadastroModal" aria-labelledby="modalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-dark text-white">
                     <h5 class="modal-title" id="modalLabel">Usuário/Cliente</h5>
-
                     <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
                     <input type="hidden"
-
                            class="form-control"
                            id="id"
                            name="id"
-
-                           value="<%=usuario.getId()%>">
+                           value="${sessionScope.usuario.id}">
                     <div class="mb-3">
                         <label for="nome" class="form-label">Nome</label>
                         <input type="text"
-
                                class="form-control"
                                id="nome"
-
                                aria-describedby="nomeHelp"
                                name="nome"
-                               value="<%=usuario.getNome()%>" required>
-                        <div
-                                id="nomeHelp" class="form-text">Informe seu nome completo.</div>
+                               value="${sessionScope.usuario.nome}" required>
+                        <div id="nomeHelp" class="form-text">Informe seu nome completo.</div>
                     </div>
 
                     <div class="mb-3">
@@ -113,7 +89,7 @@
                                class="form-control"
                                id="cpf"
                                name="cpf"
-                               value="<%=usuario.getCpf()%>" aria-describedby="cpfHelp">
+                               value="${sessionScope.usuario.cpf}" aria-describedby="cpfHelp">
                         <div id="cpfHelp" class="form-text">Para clientes e usuários do sistema.</div>
                     </div>
 
@@ -123,43 +99,40 @@
                                class="form-control"
                                id="telefone"
                                name="telefone"
-                               value="<%=usuario.getTelefone()%>">
+                               value="${sessionScope.usuario.telefone}">
                     </div>
 
                     <div class="mb-3">
                         <label for="email" class="form-label">Email</label>
-
                         <input type="email"
                                class="form-control"
                                id="email"
-
                                aria-describedby="emailHelp"
                                name="email"
-                               value="<%=usuario.getEmail()%>" required>
-
+                               value="${sessionScope.usuario.email}" required>
                         <div id="emailHelp" class="form-text">Utilize seu e-mail (necessário para login ou contato).</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="tipo" class="form-label">Tipo (Perfil)</label>
                         <select class="form-select" id="tipo" name="tipo" required onchange="toggleSenhaRequirement()">
-                            <option value="COMPRADOR" <%= "COMPRADOR".equals(usuario.getTipo()) ? "selected" : "" %>>Comprador</option>
-                            <option value="VENDEDOR" <%= "VENDEDOR".equals(usuario.getTipo()) ? "selected" : "" %>>Vendedor (Usuário do Sistema)</option>
-                            <option value="ADMIN" <%= "ADMIN".equals(usuario.getTipo()) ? "selected" : "" %>>Administrador (Usuário do Sistema)</option>
+                            <option value="COMPRADOR" ${sessionScope.usuario.tipo == 'COMPRADOR' ? 'selected' : ''}>Comprador</option>
+                            <option value="VENDEDOR" ${sessionScope.usuario.tipo == 'VENDEDOR' ? 'selected' : ''}>Vendedor (Usuário do Sistema)</option>
+                            <option value="ADMIN" ${sessionScope.usuario.tipo == 'ADMIN' ? 'selected' : ''}>Administrador (Usuário do Sistema)</option>
                         </select>
                         <div id="tipoHelp" class="form-text">Define o papel da pessoa no sistema ou transação.</div>
                     </div>
 
                     <div class="mb-3">
                         <label for="senha" class="form-label">Senha</label>
-
                         <input type="password"
                                class="form-control"
                                id="senha"
                                name="senha"
                                aria-describedby="senhaHelp"
-                               value="<%=usuario.getSenha()%>"
-                        > <div id="senhaHelp" class="form-text">Informe uma senha. Obrigatório para Vendedor e Administrador.</div>
+                               value="${sessionScope.usuario.senha}"
+                        >
+                        <div id="senhaHelp" class="form-text">Informe uma senha. Obrigatório para Vendedor e Administrador.</div>
                     </div>
                 </div>
 
@@ -168,7 +141,6 @@
                     <button type="submit" class="btn btn-primary">Salvar</button>
                 </div>
             </div>
-
         </div>
     </div>
 </form>
@@ -196,10 +168,10 @@
     }
 
     window.onload = function() {
-        <%  if (usuario.getId() > 0){ %>
+        <c:if test="${sessionScope.usuario.id > 0}">
         const cadastroModal = new bootstrap.Modal('#cadastroModal');
         cadastroModal.show();
-        <%  } %>
+        </c:if>
 
         toggleSenhaRequirement();
     };
