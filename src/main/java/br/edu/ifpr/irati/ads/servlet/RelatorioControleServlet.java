@@ -19,22 +19,26 @@ import java.util.List;
 })
 public class RelatorioControleServlet extends HttpServlet {
 
-    private Session session;
+    // REMOVIDO: O campo Session foi removido. A sessão será aberta por requisição.
 
     @Override
     public void init() throws ServletException {
-        session = HibernateUtil.getSessionFactory().openSession();
+        // O init() está vazio, pois a sessão não é mais aberta aqui.
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        Session session = null; // DECLARAÇÃO DA SESSÃO LOCAL
+
         try {
+            session = HibernateUtil.getSessionFactory().openSession(); // ABRINDO SESSÃO POR REQUISIÇÃO
+
             UrlParser urlParser = new UrlParser(req.getServletPath());
             String relatorioType = urlParser.getMethod();
 
             switch (relatorioType) {
                 case "propostas":
-                    gerarRelatorioPropostas(req, resp);
+                    gerarRelatorioPropostas(req, resp, session); // PASSANDO A SESSÃO
                     break;
                 default:
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Relatório não encontrado");
@@ -42,10 +46,16 @@ public class RelatorioControleServlet extends HttpServlet {
             }
         } catch (Exception e) {
             throw new ServletException("Erro ao gerar relatório: " + e.getMessage(), e);
+        } finally {
+            // FECHANDO SESSÃO APÓS A REQUISIÇÃO
+            if (session != null && session.isOpen()) {
+                session.close();
+            }
         }
     }
 
-    private void gerarRelatorioPropostas(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+    // MUDANÇA: O método agora recebe a Session por parâmetro
+    private void gerarRelatorioPropostas(HttpServletRequest req, HttpServletResponse resp, Session session) throws ServletException, IOException {
         // Usa o GenericDao para buscar todas as propostas
         GenericDao<Proposta> propostaDao = new GenericDao<>(Proposta.class, session);
         List<Proposta> propostas = propostaDao.buscarTodos();

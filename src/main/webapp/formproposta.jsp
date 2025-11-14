@@ -1,3 +1,4 @@
+
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
@@ -89,8 +90,15 @@
                         <td>${p.statusNegociacao}</td>
                         <td class="text-end">
 
-                            <a class="btn btn-success btn-sm" href="proposta/findbyid?id=${p.id}" role="button">Alterar</a>
-                            <a class="btn btn-danger btn-sm" href="proposta/delete?id=${p.id}" role="button">Excluir</a>
+                            <c:choose>
+                                <c:when test="${p.statusNegociacao == 'ACEITA' || p.statusNegociacao == 'FINALIZADA'}">
+                                    <span class="text-muted small">Transação Finalizada/Aceita</span>
+                                </c:when>
+                                <c:otherwise>
+                                    <a class="btn btn-success btn-sm" href="proposta/findbyid?id=${p.id}" role="button">Alterar</a>
+                                    <a class="btn btn-danger btn-sm" href="proposta/delete?id=${p.id}" role="button">Excluir</a>
+                                </c:otherwise>
+                            </c:choose>
                         </td>
 
                     </tr>
@@ -189,7 +197,8 @@
                                         'selected' : ''}>Aceita</option>
                                 <option value="CANCELADA" ${proposta.statusNegociacao == 'CANCELADA' ?
                                         'selected' : ''}>Cancelada</option>
-                            </select>
+                                <option value="FINALIZADA" ${proposta.statusNegociacao == 'FINALIZADA' ?
+                                        'selected' : ''}>Finalizada</option> </select>
                             <div class="form-text">O status 'Aceita' irá finalizar a proposta e criar um registro de Venda.</div>
                         </div>
 

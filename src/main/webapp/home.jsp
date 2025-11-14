@@ -27,7 +27,7 @@
             Controle de Propostas
         </a>
         <a href="venda/findall" class="list-group-item list-group-item-action list-group-item-primary">
-            Vendas Finalizadas (CRUD) </a>
+            Vendas Finalizadas </a>
     </div>
 
     <hr>

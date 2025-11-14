@@ -2,6 +2,7 @@ package br.edu.ifpr.irati.ads.service;
 
 import br.edu.ifpr.irati.ads.dao.Dao;
 import br.edu.ifpr.irati.ads.dao.GenericDao;
+import br.edu.ifpr.irati.ads.model.Proposta;
 import br.edu.ifpr.irati.ads.model.Venda;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -62,16 +63,37 @@ public class VendaService implements Service {
         resp.sendRedirect(REDIRECT_PAGE);
     }
 
-    /**
-     * Método chave para a nova lógica. Chamado por PropostaService.
-     */
     public void finalizarVenda(Venda venda, Session session) throws ServletException, IOException {
         Dao<Venda> dao = new GenericDao<>(Venda.class, session);
         dao.salvar(venda);
     }
 
     /**
-     * NOVO: Funcionalidade não-CRUD de geração de Contrato/Recibo (HTML formatado) baseado na Venda.
+     * Implementação da Baixa Final (UPDATE de Status).
+     */
+    public void darBaixa(HttpServletRequest req, HttpServletResponse resp, Session session) throws ServletException, IOException {
+
+        Dao<Venda> dao = new GenericDao<>(Venda.class, session);
+        Dao<Proposta> propostaDao = new GenericDao<>(Proposta.class, session);
+
+        Long id = Long.parseLong(req.getParameter("idVendaBaixa"));
+
+        Venda venda = dao.buscarPorId(id);
+
+        // 1. Atualizar o status da Proposta vinculada para FINALIZADA
+        Proposta proposta = venda.getPropostaOrigem();
+        proposta.setStatusNegociacao("FINALIZADA");
+        propostaDao.alterar(proposta);
+
+        // 2. Mudar o status da Venda
+        venda.setStatusVenda("CONCLUIDA");
+        dao.alterar(venda);
+
+        findAll(req, resp, session);
+    }
+
+    /**
+     * Funcionalidade de geração de Contrato/Recibo (HTML formatado) baseado na Venda.
      */
     public void gerarPdf(HttpServletRequest req, HttpServletResponse resp, Session session) throws ServletException, IOException {
 
@@ -79,10 +101,8 @@ public class VendaService implements Service {
         Long id = Long.parseLong(req.getParameter("id"));
         Venda venda = dao.buscarPorId(id);
 
-        // Define o tipo de conteúdo como HTML
         resp.setContentType("text/html;charset=UTF-8");
 
-        // Geração do conteúdo HTML formatado com os dados da Venda
         String contratoContent = "<html>" +
                 "<head><title>Recibo de Venda " + venda.getId() + "</title>" +
                 "<link href='https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css' rel='stylesheet'>" +
@@ -90,30 +110,26 @@ public class VendaService implements Service {
                 "<body><div class='container mt-5'>" +
                 "<h2 class='text-center'>RECIBO / CONTRATO DE VENDA FINALIZADA</h2>" +
                 "<hr>" +
-
                 "<h4 class='mt-4'>Detalhes da Transação</h4>" +
                 "<p><strong>ID da Venda:</strong> " + venda.getId() + "</p>" +
                 "<p><strong>Data da Venda:</strong> " + venda.getDataVenda().toLocalDate() + "</p>" +
                 "<p class='fs-4 text-success'><strong>VALOR FINAL DA VENDA:</strong> R$ " + String.format("%,.2f", venda.getValorFinal()) + "</p>" +
+                "<p><strong>Status:</strong> " + venda.getStatusVenda() + "</p>" +
                 "<p><strong>Proposta de Origem ID:</strong> " + venda.getPropostaOrigem().getId() + "</p>" +
-
                 "<h4 class='mt-5'>Dados do Cliente/Comprador</h4>" +
                 "<p><strong>Nome:</strong> " + venda.getCliente().getNome() + "</p>" +
                 "<p><strong>Email:</strong> " + venda.getCliente().getEmail() + "</p>" +
                 "<p><strong>CPF:</strong> " + venda.getCliente().getCpf() + "</p>" +
                 "<p><strong>Telefone:</strong> " + venda.getCliente().getTelefone() + "</p>" +
-
                 "<h4 class='mt-5'>Dados do Veículo</h4>" +
                 "<p><strong>Marca:</strong> " + venda.getVeiculo().getMarca() + "</p>" +
-                "<p><strong>Modelo:</strong> " + venda.getVeiculo().getModelo() + "</p>" +
+                "<p><strong>Modelo:</strong> " + venda.getVeiculo().getModelo() + "</p>" + // CORRIGIDO: de getModelos() para getModelo()
                 "<p><strong>Ano:</strong> " + venda.getVeiculo().getAno() + "</p>" +
                 "<p><strong>Quilometragem:</strong> " + venda.getVeiculo().getQuilometragem() + " Km</p>" +
                 "<p><strong>Preço de Tabela:</strong> R$ " + String.format("%,.2f", venda.getVeiculo().getPreco()) + "</p>" +
-
                 "<h4 class='mt-5'>Dados do Vendedor</h4>" +
                 "<p><strong>Nome:</strong> " + venda.getVendedor().getNome() + "</p>" +
                 "<p><strong>Email:</strong> " + venda.getVendedor().getEmail() + "</p>" +
-
                 "<hr class='mt-5'>" +
                 "<p class='text-center'>Este documento formaliza a venda concluída e o valor pago.</p>" +
                 "</div></body></html>";

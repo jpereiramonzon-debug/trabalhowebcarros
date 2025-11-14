@@ -7,6 +7,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.Session;
+import jakarta.persistence.PersistenceException; // Import necessário
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -96,10 +97,23 @@ public class VeiculoService implements Service{
 
         Dao<Veiculo> dao = new GenericDao<>(Veiculo.class, session);
         Long id = Long.parseLong(req.getParameter("id"));
-
         Veiculo veiculo = dao.buscarPorId(id);
-        dao.excluir(veiculo);
 
+        try {
+            dao.excluir(veiculo); // Tenta excluir
+        } catch (PersistenceException e) {
+            // Captura o erro de chave estrangeira
+            String errorMessage = "Impossível excluir o veículo. Ele está vinculado a uma Proposta Aceita/Finalizada ou Em Negociação.";
+
+            // 1. Define a mensagem de erro no REQUEST scope
+            req.setAttribute("errorMessage", errorMessage);
+
+            // 2. Encaminha para a página de erro
+            req.getRequestDispatcher("/erro.jsp").forward(req, resp);
+            return; // Sai do método
+        }
+
+        // Código original de sucesso (apenas se a exclusão for bem-sucedida)
         req.getSession().setAttribute("veiculo", new Veiculo());
         req.getSession().setAttribute("veiculos", dao.buscarTodos()); // CORREÇÃO: Usando 'veiculos'
         resp.sendRedirect(REDIRECT_PAGE);

@@ -40,25 +40,37 @@
                     <th scope="col">Cliente</th>
                     <th scope="col">Vendedor</th>
                     <th scope="col">Valor Final</th>
-                    <th>Ações</th>
+                    <th scope="col">Status</th> <th>Ações</th>
                 </tr>
                 </thead>
                 <tbody>
                 <c:forEach var="v" items="${vendas}">
                     <tr>
                         <td>${v.id}</td>
-                            <%-- Usando toLocalDate() para evitar o erro de conversão de LocalDateTime --%>
                         <td>${v.dataVenda.toLocalDate()}</td>
                         <td>${v.veiculo.marca} ${v.veiculo.modelo}</td>
                         <td>${v.cliente.nome}</td>
                         <td>${v.vendedor.nome}</td>
                         <td>R$ <fmt:formatNumber value="${v.valorFinal}" pattern="#,##0.00"/></td>
-                        <td class="text-end">
-                                <%-- NOVO: Botão para gerar o PDF da Venda --%>
-                            <a class="btn btn-info btn-sm text-white" href="venda/gerarpdf?id=${v.id}" target="_blank" role="button">Gerar Contrato (PDF)</a>
-                                <%-- NOVO: Botão para Excluir a Venda (Estornar) --%>
-                            <a class="btn btn-danger btn-sm" href="venda/delete?id=${v.id}" role="button">Excluir Venda</a>
-                        </td>
+                        <td>${v.statusVenda}</td> <td class="text-end">
+                            <%-- Botão para gerar o PDF da Venda --%>
+                        <a class="btn btn-info btn-sm text-white me-2" href="venda/gerarpdf?id=${v.id}" target="_blank" role="button">Gerar Contrato (PDF)</a>
+
+                            <%-- Condicional: Botão Finalizar Venda só aparece se o status for ATIVA --%>
+                        <c:if test="${v.statusVenda == 'ATIVA'}">
+                            <button type="button" class="btn btn-success btn-sm" data-bs-toggle="modal"
+                                    data-bs-target="#finalizarModal"
+                                    onclick="prepararFinalizacao(
+                                            '${v.id}',
+                                            '${v.cliente.nome}',
+                                            '${v.vendedor.nome}',
+                                            '${v.veiculo.marca} ${v.veiculo.modelo}',
+                                            '<fmt:formatNumber value="${v.valorFinal}" pattern="#,##0.00"/>'
+                                            )">
+                                Finalizar Venda
+                            </button>
+                        </c:if>
+                    </td>
                     </tr>
                 </c:forEach>
                 </tbody>
@@ -73,7 +85,63 @@
     </div>
 </div>
 
+<div class="modal fade" tabindex="-1" id="finalizarModal" aria-labelledby="modalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <form method="post" action="venda/darbaixa">
+                <div class="modal-header bg-success text-white">
+                    <h5 class="modal-title" id="modalLabel">Confirmação de Baixa (Venda Concluída)</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                            aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <input type="hidden" id="idVendaBaixa" name="idVendaBaixa">
+
+                    <p class="lead">Confirme a baixa final desta transação. Esta ação remove o registro da lista de Vendas Finalizadas.</p>
+
+                    <div class="mb-3">
+                        <label class="form-label">Veículo:</label>
+                        <input type="text" class="form-control" id="veiculoDetalhes" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Valor Final:</label>
+                        <input type="text" class="form-control" id="valorFinal" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Comprador:</label>
+                        <input type="text" class="form-control" id="clienteNome" readonly>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Vendedor Responsável:</label>
+                        <input type="text" class="form-control" id="vendedorNome" readonly>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-success">Dar Baixa e Concluir</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.min.js" crossorigin="anonymous"></script>
+
+<script type="text/javascript">
+    /**
+     * Preenche os campos do modal com os dados da venda selecionada, incluindo Veículo e Valor.
+     */
+    function prepararFinalizacao(id, clienteNome, vendedorNome, veiculoDetalhes, valorFinal) {
+        document.getElementById('idVendaBaixa').value = id;
+        document.getElementById('clienteNome').value = clienteNome;
+        document.getElementById('vendedorNome').value = vendedorNome;
+        document.getElementById('veiculoDetalhes').value = veiculoDetalhes;
+        document.getElementById('valorFinal').value = valorFinal;
+    }
+</script>
 </body>
 </html>

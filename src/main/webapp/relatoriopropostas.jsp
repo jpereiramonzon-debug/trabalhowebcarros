@@ -15,16 +15,28 @@
     }
 
     int totalPropostas = propostas.size();
+
+    // Calcula Propostas Aceitas
     long propostasAceitas = propostas.stream()
             .filter(p -> "ACEITA".equals(p.getStatusNegociacao()))
             .count();
-    BigDecimal valorTotalProposto = propostas.stream()
+
+    // NOVO: Calcula Propostas Recusadas (AGORA CONTA CANCELADA)
+    long propostasRecusadas = propostas.stream()
+            .filter(p -> "CANCELADA".equals(p.getStatusNegociacao()))
+            .count();
+
+    // Calcula Valor Total Aceito (soma APENAS as propostas ACEITAS)
+    BigDecimal valorTotalAceito = propostas.stream()
+            .filter(p -> "ACEITA".equals(p.getStatusNegociacao()))
             .map(Proposta::getValorProposto)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
+
     // Configura variáveis no escopo 'request' para que o EL possa acessá-las
     request.setAttribute("totalPropostas", totalPropostas);
     request.setAttribute("propostasAceitas", propostasAceitas);
-    request.setAttribute("valorTotalProposto", valorTotalProposto);
+    request.setAttribute("propostasRecusadas", propostasRecusadas); // NOVO
+    request.setAttribute("valorTotalAceito", valorTotalAceito);     // NOVO
 %>
 <!DOCTYPE html>
 <html>
@@ -41,17 +53,17 @@
     <h2 class="mb-4 text-secondary">Relatório Gerencial de Propostas</h2>
 
     <div class="row mb-4">
-        <div class="col-md-4">
-            <div class="card text-white bg-primary shadow-sm">
 
+        <div class="col-md-3">
+            <div class="card text-white bg-primary shadow-sm">
                 <div class="card-header">Total de Propostas</div>
                 <div class="card-body">
                     <h5 class="card-title">${totalPropostas}</h5>
                 </div>
             </div>
         </div>
-        <div class="col-md-4">
 
+        <div class="col-md-3">
             <div class="card text-white bg-success shadow-sm">
                 <div class="card-header">Propostas Aceitas</div>
                 <div class="card-body">
@@ -60,15 +72,24 @@
             </div>
         </div>
 
-        <div class="col-md-4">
-            <div class="card text-white bg-info shadow-sm">
-                <div class="card-header">Valor Total Proposto</div>
+        <div class="col-md-3">
+            <div class="card text-white bg-danger shadow-sm">
+                <div class="card-header">Propostas Recusadas</div>
                 <div class="card-body">
-                    <h5 class="card-title">R$ <fmt:formatNumber value="${valorTotalProposto}" pattern="#,##0.00"/></h5>
-
+                    <h5 class="card-title">${propostasRecusadas}</h5>
                 </div>
             </div>
         </div>
+
+        <div class="col-md-3">
+            <div class="card text-white bg-info shadow-sm">
+                <div class="card-header">Valor Total Aceito</div>
+                <div class="card-body">
+                    <h5 class="card-title">R$ <fmt:formatNumber value="${valorTotalAceito}" pattern="#,##0.00"/></h5>
+                </div>
+            </div>
+        </div>
+
     </div>
 
     <h4>Detalhes das Propostas</h4>
@@ -91,7 +112,8 @@
             <c:forEach var="p" items="${propostas}">
                 <tr>
                     <td>${p.id}</td>
-                    <td>${p.dataProposta.toLocalDate()}</td> <td>${p.veiculo.marca} ${p.veiculo.modelo}</td>
+                    <td>${p.dataProposta.toLocalDate()}</td>
+                    <td>${p.veiculo.marca} ${p.veiculo.modelo}</td>
                     <td>${p.cliente.nome} (${p.cliente.tipo})</td>
                     <td>${p.vendedor.nome}</td>
                     <td>R$ <fmt:formatNumber value="${p.valorProposto}" pattern="#,##0.00"/></td>

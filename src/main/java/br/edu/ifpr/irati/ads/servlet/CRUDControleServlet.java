@@ -3,7 +3,7 @@ package br.edu.ifpr.irati.ads.servlet;
 import br.edu.ifpr.irati.ads.dao.HibernateUtil;
 import br.edu.ifpr.irati.ads.service.Service;
 import br.edu.ifpr.irati.ads.service.ServiceFactory;
-import br.edu.ifpr.irati.ads.service.VendaService; // NOVO: Importa VendaService
+import br.edu.ifpr.irati.ads.service.VendaService;
 import br.edu.ifpr.irati.ads.util.UrlParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -35,7 +35,8 @@ import java.io.IOException;
         "/venda/create",
         "/venda/update",
         "/venda/delete",
-        "/venda/gerarpdf" // NOVO: Mapeamento Gerar PDF para Venda
+        "/venda/gerarpdf",
+        "/venda/darbaixa" // NOVO: Mapeamento para dar baixa final na venda
 })
 public class CRUDControleServlet extends HttpServlet {
 
@@ -46,10 +47,9 @@ public class CRUDControleServlet extends HttpServlet {
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 
-        Session session = null; // DECLARAÇÃO DA SESSÃO LOCAL
+        Session session = null;
 
         try{
-            // ABRINDO SESSÃO POR REQUISIÇÃO (UNIT OF WORK)
             session = HibernateUtil.getSessionFactory().openSession();
 
             UrlParser urlParser = new UrlParser(req.getServletPath());
@@ -71,11 +71,18 @@ public class CRUDControleServlet extends HttpServlet {
                 case "delete":
                     service.delete(req, resp, session);
                     break;
-                case "gerarpdf": // NOVO: Case para gerar o PDF da Venda
+                case "gerarpdf":
                     if (service instanceof VendaService) {
                         ((VendaService) service).gerarPdf(req, resp, session);
                     } else {
                         resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Funcionalidade de PDF indisponível.");
+                    }
+                    break;
+                case "darbaixa": // NOVO: Case para dar baixa
+                    if (service instanceof VendaService) {
+                        ((VendaService) service).darBaixa(req, resp, session);
+                    } else {
+                        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Funcionalidade de baixa indisponível.");
                     }
                     break;
                 default:
@@ -87,7 +94,6 @@ public class CRUDControleServlet extends HttpServlet {
         }catch (Exception e){
             throw new ServletException(e.getMessage());
         }finally {
-            // FECHANDO SESSÃO APÓS A REQUISIÇÃO
             if (session != null && session.isOpen()) {
                 session.close();
             }
