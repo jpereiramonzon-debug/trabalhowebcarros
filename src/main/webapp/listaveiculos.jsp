@@ -11,10 +11,13 @@
 <%
     // Bloco de código de backend (Java) mantido para gerenciamento da Sessão e DAO
     Session hibernateSession = HibernateUtil.getSessionFactory().openSession();
-    GenericDao<Veiculo> veiculoDao = new GenericDao<>(Veiculo.class, hibernateSession);
 
-    // Busca todos os veículos para exibição pública
-    List<Veiculo> veiculos = veiculoDao.buscarTodos();
+    // CORREÇÃO: Usando o FQCN (Fully Qualified Class Name) para Veiculo e Proposta na HQL
+    String hql = "SELECT v FROM br.edu.ifpr.irati.ads.model.Veiculo v WHERE v.id NOT IN " +
+            "(SELECT p.veiculo.id FROM br.edu.ifpr.irati.ads.model.Proposta p WHERE p.statusNegociacao = 'EM_NEGOCIACAO' OR p.statusNegociacao = 'ACEITA')";
+
+    // Busca apenas os veículos disponíveis (não reservados/negociados)
+    List<Veiculo> veiculos = hibernateSession.createQuery(hql, Veiculo.class).getResultList();
 
     if (veiculos == null){
         veiculos = new ArrayList<>();
@@ -42,22 +45,27 @@
     <div class="row">
         <c:forEach var="v" items="${veiculos}">
             <div class="col-md-4 mb-4">
+
                 <div class="card h-100 shadow-sm">
                     <img src="${v.fotosUrl.isEmpty() ? 'https://via.placeholder.com/300x200?text=Sem+Foto' : v.fotosUrl}"
                          class="card-img-top" alt="${v.modelo}" style="object-fit: cover; height: 200px;">
 
                     <div class="card-body d-flex flex-column">
+
                         <h5 class="card-title text-dark">${v.marca} ${v.modelo}</h5>
 
-                        <p class="card-text mb-1 text-muted">Ano: ${v.ano} | Km: ${v.quilometragem}</p>
+                        <p class="card-text mb-1 text-muted">Ano: ${v.ano} |
+                            Km: ${v.quilometragem}</p>
 
                         <p class="card-text flex-grow-1 small text-truncate">
-                            Histórico: ${v.historico.length() > 100 ? v.historico.substring(0, 100).concat('...') : v.historico}
+                            Histórico: ${v.historico.length() > 100 ?
+                                v.historico.substring(0, 100).concat('...') : v.historico}
                         </p>
 
                         <h4 class="text-primary mt-3">R$ <fmt:formatNumber value="${v.preco}" pattern="#,##0.00"/></h4>
 
                         <a href="${contextPath}/simulacao/calcular" class="btn btn-warning mt-2">Simular Financiamento</a>
+
                     </div>
                 </div>
             </div>

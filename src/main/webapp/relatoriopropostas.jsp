@@ -10,7 +10,6 @@
 <%
     // Bloco de processamento de dados mantido, conforme a regra de não alterar funcionalidades
     List<Proposta> propostas = (List<Proposta>) request.getAttribute("propostas");
-
     if (propostas == null){
         propostas = new ArrayList<>();
     }
@@ -19,11 +18,9 @@
     long propostasAceitas = propostas.stream()
             .filter(p -> "ACEITA".equals(p.getStatusNegociacao()))
             .count();
-
     BigDecimal valorTotalProposto = propostas.stream()
             .map(Proposta::getValorProposto)
             .reduce(BigDecimal.ZERO, BigDecimal::add);
-
     // Configura variáveis no escopo 'request' para que o EL possa acessá-las
     request.setAttribute("totalPropostas", totalPropostas);
     request.setAttribute("propostasAceitas", propostasAceitas);
@@ -46,6 +43,7 @@
     <div class="row mb-4">
         <div class="col-md-4">
             <div class="card text-white bg-primary shadow-sm">
+
                 <div class="card-header">Total de Propostas</div>
                 <div class="card-body">
                     <h5 class="card-title">${totalPropostas}</h5>
@@ -53,6 +51,7 @@
             </div>
         </div>
         <div class="col-md-4">
+
             <div class="card text-white bg-success shadow-sm">
                 <div class="card-header">Propostas Aceitas</div>
                 <div class="card-body">
@@ -60,11 +59,13 @@
                 </div>
             </div>
         </div>
+
         <div class="col-md-4">
             <div class="card text-white bg-info shadow-sm">
                 <div class="card-header">Valor Total Proposto</div>
                 <div class="card-body">
                     <h5 class="card-title">R$ <fmt:formatNumber value="${valorTotalProposto}" pattern="#,##0.00"/></h5>
+
                 </div>
             </div>
         </div>
@@ -76,23 +77,25 @@
             <thead class="table-dark">
             <tr>
                 <th scope="col">ID</th>
+
                 <th scope="col">Data</th>
                 <th scope="col">Veículo</th>
                 <th scope="col">Cliente</th>
                 <th scope="col">Vendedor</th>
                 <th scope="col">Valor</th>
                 <th scope="col">Status</th>
+
             </tr>
             </thead>
             <tbody>
             <c:forEach var="p" items="${propostas}">
                 <tr>
                     <td>${p.id}</td>
-                    <td><fmt:formatDate value="${p.dataProposta}" pattern="yyyy-MM-dd"/></td>
-                    <td>${p.veiculo.marca} ${p.veiculo.modelo}</td>
+                    <td>${p.dataProposta.toLocalDate()}</td> <td>${p.veiculo.marca} ${p.veiculo.modelo}</td>
                     <td>${p.cliente.nome} (${p.cliente.tipo})</td>
                     <td>${p.vendedor.nome}</td>
                     <td>R$ <fmt:formatNumber value="${p.valorProposto}" pattern="#,##0.00"/></td>
+
                     <td>${p.statusNegociacao}</td>
                 </tr>
             </c:forEach>
