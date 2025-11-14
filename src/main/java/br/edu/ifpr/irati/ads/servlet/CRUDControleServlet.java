@@ -3,7 +3,7 @@ package br.edu.ifpr.irati.ads.servlet;
 import br.edu.ifpr.irati.ads.dao.HibernateUtil;
 import br.edu.ifpr.irati.ads.service.Service;
 import br.edu.ifpr.irati.ads.service.ServiceFactory;
-import br.edu.ifpr.irati.ads.service.PropostaService;
+import br.edu.ifpr.irati.ads.service.VendaService; // NOVO: Importa VendaService
 import br.edu.ifpr.irati.ads.util.UrlParser;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -30,16 +30,17 @@ import java.io.IOException;
         "/proposta/create",
         "/proposta/update",
         "/proposta/delete",
-        "/proposta/gerarcontrato"
+        "/venda/findbyid",
+        "/venda/findall",
+        "/venda/create",
+        "/venda/update",
+        "/venda/delete",
+        "/venda/gerarpdf" // NOVO: Mapeamento Gerar PDF para Venda
 })
 public class CRUDControleServlet extends HttpServlet {
 
-    // REMOVIDO: A variável 'session' como campo de classe
-
     @Override
     public void init() throws ServletException {
-        // REMOVIDO: A abertura única de sessão.
-        // A sessão será aberta e fechada por requisição.
     }
 
     @Override
@@ -70,15 +71,14 @@ public class CRUDControleServlet extends HttpServlet {
                 case "delete":
                     service.delete(req, resp, session);
                     break;
-                case "gerarcontrato":
-                    if (service instanceof PropostaService) {
-                        ((PropostaService) service).gerarContrato(req, resp, session);
+                case "gerarpdf": // NOVO: Case para gerar o PDF da Venda
+                    if (service instanceof VendaService) {
+                        ((VendaService) service).gerarPdf(req, resp, session);
                     } else {
-                        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Funcionalidade de contrato não disponível.");
+                        resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Funcionalidade de PDF indisponível.");
                     }
                     break;
                 default:
-                    //enviar para uma tela de 404.
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Método não encontrado.");
                     break;
             }

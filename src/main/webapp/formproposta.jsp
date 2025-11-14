@@ -80,7 +80,8 @@
 
                 <c:forEach var="p" items="${propostas}">
                     <tr>
-                        <td>${p.dataProposta.toLocalDate()}</td> <td>${p.veiculo.marca} ${p.veiculo.modelo}</td>
+                        <td>${p.dataProposta.toLocalDate()}</td>
+                        <td>${p.veiculo.marca} ${p.veiculo.modelo}</td>
                         <td>${p.cliente.nome}</td>
 
                         <td>${p.vendedor.nome}</td>
@@ -90,11 +91,6 @@
 
                             <a class="btn btn-success btn-sm" href="proposta/findbyid?id=${p.id}" role="button">Alterar</a>
                             <a class="btn btn-danger btn-sm" href="proposta/delete?id=${p.id}" role="button">Excluir</a>
-
-                            <c:if test="${p.statusNegociacao == 'ACEITA'}">
-
-                                <a class="btn btn-info btn-sm text-white" href="proposta/gerarcontrato?id=${p.id}" target="_blank" role="button">Gerar Contrato (PDF)</a>
-                            </c:if>
                         </td>
 
                     </tr>
@@ -192,8 +188,9 @@
                                 <option value="ACEITA" ${proposta.statusNegociacao == 'ACEITA' ?
                                         'selected' : ''}>Aceita</option>
                                 <option value="CANCELADA" ${proposta.statusNegociacao == 'CANCELADA' ?
-                                        'selected' : ''}>Cancelada</option> </select>
-                            <div class="form-text">Para gerar o contrato, o status deve ser ACEITA.</div>
+                                        'selected' : ''}>Cancelada</option>
+                            </select>
+                            <div class="form-text">O status 'Aceita' irá finalizar a proposta e criar um registro de Venda.</div>
                         </div>
 
                     </c:if>

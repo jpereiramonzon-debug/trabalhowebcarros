@@ -9,8 +9,10 @@ public class ServiceFactory {
                 return new UsuarioService();
             case "veiculo":
                 return new VeiculoService();
-            case "proposta": // NOVO: Retorna o serviço para a entidade Proposta
+            case "proposta": // Retorna o serviço para a entidade Proposta
                 return new PropostaService();
+            case "venda": // NOVO: Retorna o serviço para a entidade Venda
+                return new VendaService();
             default:
                 break;
         }

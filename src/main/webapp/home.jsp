@@ -19,12 +19,15 @@
         <a href="usuario/findall" class="list-group-item list-group-item-action list-group-item-primary">
             Cadastrar Usuários/Clientes
         </a>
+
         <a href="veiculo/findall" class="list-group-item list-group-item-action list-group-item-primary">
             Cadastrar Veículos
         </a>
         <a href="proposta/findall" class="list-group-item list-group-item-action list-group-item-primary">
             Controle de Propostas
         </a>
+        <a href="venda/findall" class="list-group-item list-group-item-action list-group-item-primary">
+            Vendas Finalizadas (CRUD) </a>
     </div>
 
     <hr>
@@ -32,6 +35,7 @@
     <h4 class="mb-3">Relatórios e Ferramentas</h4>
     <div class="list-group">
         <a href="relatorio/propostas" class="list-group-item list-group-item-action list-group-item-secondary">
+
             Relatório de Propostas
         </a>
         <a href="simulacao/calcular" class="list-group-item list-group-item-action list-group-item-secondary">
