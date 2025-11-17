@@ -19,7 +19,6 @@ public class Venda implements Serializable {
     )
     private Long id;
 
-    // FetchType.EAGER já corrigido anteriormente
     @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "proposta_id", nullable = false)
     private Proposta propostaOrigem;
@@ -30,11 +29,9 @@ public class Venda implements Serializable {
     @Column(name = "valor_final", precision = 12, scale = 2, nullable = false)
     private BigDecimal valorFinal;
 
-    // NOVO: Campo de Status para controlar a baixa final
     @Column(name = "status_venda", length = 50, nullable = false)
     private String statusVenda; // Ex: ATIVA (Aguardando Baixa), CONCLUIDA (Baixa Dada)
 
-    // Construtor padrão
     public Venda() {
         this.id = 0L;
         this.dataVenda = LocalDateTime.now();
@@ -49,10 +46,10 @@ public class Venda implements Serializable {
         this.propostaOrigem = proposta;
         this.dataVenda = LocalDateTime.now();
         this.valorFinal = proposta.getValorProposto();
-        this.statusVenda = "ATIVA"; // Estado inicial
+        this.statusVenda = "ATIVA";
     }
 
-    // Construtor completo (atualizado para incluir status)
+
     public Venda(Long id, Proposta propostaOrigem, LocalDateTime dataVenda, BigDecimal valorFinal, String statusVenda) {
         this.id = id;
         this.propostaOrigem = propostaOrigem;
@@ -61,7 +58,6 @@ public class Venda implements Serializable {
         this.statusVenda = statusVenda;
     }
 
-    // Getters e Setters
     public Long getId() {return id;}
     public void setId(Long id) {this.id = id;}
     public Proposta getPropostaOrigem() {return propostaOrigem;}
@@ -71,7 +67,6 @@ public class Venda implements Serializable {
     public BigDecimal getValorFinal() {return valorFinal;}
     public void setValorFinal(BigDecimal valorFinal) {this.valorFinal = valorFinal;}
 
-    // NOVO: Getter e Setter para o Status
     public String getStatusVenda() {return statusVenda;}
     public void setStatusVenda(String statusVenda) {this.statusVenda = statusVenda;}
 

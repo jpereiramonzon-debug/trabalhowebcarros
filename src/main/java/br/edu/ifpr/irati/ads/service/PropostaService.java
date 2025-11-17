@@ -51,16 +51,15 @@ public class PropostaService implements Service{
         BigDecimal valorProposto = new BigDecimal(req.getParameter("valorProposto"));
         String statusNegociacao = req.getParameter("statusNegociacao");
 
-        // Busca as entidades relacionadas
+
         Proposta proposta = propostaDao.buscarPorId(id);
         Veiculo veiculo = veiculoDao.buscarPorId(veiculoId);
         Usuario cliente = usuarioDao.buscarPorId(clienteId);
         Usuario vendedor = usuarioDao.buscarPorId(vendedorId);
 
-        // Armazena o status anterior
+
         String statusAnterior = proposta.getStatusNegociacao();
 
-        // Atualiza os campos
         proposta.setVeiculo(veiculo);
         proposta.setCliente(cliente);
         proposta.setVendedor(vendedor);
@@ -69,13 +68,11 @@ public class PropostaService implements Service{
 
         // NOVO: Lógica de transição para Venda
         if ("ACEITA".equals(statusNegociacao) && !"ACEITA".equals(statusAnterior)) {
-            // A proposta mudou para ACEITA, então finaliza a venda.
             try {
                 VendaService vendaService = new VendaService();
                 Venda novaVenda = new Venda(proposta);
                 vendaService.finalizarVenda(novaVenda, session);
             } catch (Exception e) {
-                // Se falhar ao criar a venda, lança uma exceção.
                 throw new ServletException("Erro ao finalizar Venda (criar registro): " + e.getMessage(), e);
             }
         }
@@ -99,7 +96,6 @@ public class PropostaService implements Service{
         Long clienteId = Long.parseLong(req.getParameter("clienteId"));
         Long vendedorId = Long.parseLong(req.getParameter("vendedorId"));
         BigDecimal valorProposto = new BigDecimal(req.getParameter("valorProposto"));
-        // O status inicial deve ser EM_NEGOCIACAO, pois removemos ORCAMENTO
         String statusNegociacao = "EM_NEGOCIACAO";
 
         // Busca as entidades relacionadas

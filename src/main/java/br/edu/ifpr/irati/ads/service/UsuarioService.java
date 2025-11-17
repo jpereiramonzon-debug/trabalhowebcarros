@@ -38,7 +38,6 @@ public class UsuarioService implements Service{
         String email = req.getParameter("email");
         String senha = req.getParameter("senha");
 
-        // Leitura dos campos adicionais
         String cpf = req.getParameter("cpf");
         String telefone = req.getParameter("telefone");
         String tipo = req.getParameter("tipo");
@@ -52,7 +51,7 @@ public class UsuarioService implements Service{
             usuario.setSenha(senha);
         }
 
-        // Atualização dos campos adicionais
+
         usuario.setCpf(cpf);
         usuario.setTelefone(telefone);
         usuario.setTipo(tipo);
@@ -78,7 +77,6 @@ public class UsuarioService implements Service{
         String email = req.getParameter("email");
         String senha = req.getParameter("senha");
 
-        // Leitura dos campos adicionais
         String cpf = req.getParameter("cpf");
         String telefone = req.getParameter("telefone");
         String tipo = req.getParameter("tipo");

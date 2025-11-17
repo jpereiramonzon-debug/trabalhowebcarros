@@ -16,8 +16,6 @@ public class ServiceFactory {
             default:
                 break;
         }
-
-        // Mantém o comportamento original de fallback
         return new UsuarioService();
     }
 

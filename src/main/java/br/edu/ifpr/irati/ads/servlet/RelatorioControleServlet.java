@@ -19,26 +19,25 @@ import java.util.List;
 })
 public class RelatorioControleServlet extends HttpServlet {
 
-    // REMOVIDO: O campo Session foi removido. A sessão será aberta por requisição.
-
     @Override
     public void init() throws ServletException {
-        // O init() está vazio, pois a sessão não é mais aberta aqui.
+
     }
 
     @Override
     protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Session session = null; // DECLARAÇÃO DA SESSÃO LOCAL
+        Session session = null;
 
         try {
-            session = HibernateUtil.getSessionFactory().openSession(); // ABRINDO SESSÃO POR REQUISIÇÃO
+            //sessao por requisição
+            session = HibernateUtil.getSessionFactory().openSession();
 
             UrlParser urlParser = new UrlParser(req.getServletPath());
             String relatorioType = urlParser.getMethod();
 
             switch (relatorioType) {
                 case "propostas":
-                    gerarRelatorioPropostas(req, resp, session); // PASSANDO A SESSÃO
+                    gerarRelatorioPropostas(req, resp, session);
                     break;
                 default:
                     resp.sendError(HttpServletResponse.SC_NOT_FOUND, "Relatório não encontrado");
@@ -47,23 +46,20 @@ public class RelatorioControleServlet extends HttpServlet {
         } catch (Exception e) {
             throw new ServletException("Erro ao gerar relatório: " + e.getMessage(), e);
         } finally {
-            // FECHANDO SESSÃO APÓS A REQUISIÇÃO
             if (session != null && session.isOpen()) {
                 session.close();
             }
         }
     }
 
-    // MUDANÇA: O método agora recebe a Session por parâmetro
+    // metodo recebe a session por parametro
     private void gerarRelatorioPropostas(HttpServletRequest req, HttpServletResponse resp, Session session) throws ServletException, IOException {
-        // Usa o GenericDao para buscar todas as propostas
+        //GenericDao busca todas as propostas
         GenericDao<Proposta> propostaDao = new GenericDao<>(Proposta.class, session);
         List<Proposta> propostas = propostaDao.buscarTodos();
 
-        // Salva a lista na requisição para ser exibida pelo JSP
+        // Salva requisição exibida pelo JSP
         req.setAttribute("propostas", propostas);
-
-        // CORREÇÃO: Usando ServletContext para resolver o caminho de forma mais robusta.
         req.getServletContext().getRequestDispatcher("/relatoriopropostas.jsp").forward(req, resp);
     }
 }

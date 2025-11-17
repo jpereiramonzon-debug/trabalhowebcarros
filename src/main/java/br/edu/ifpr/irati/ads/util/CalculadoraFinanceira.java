@@ -9,15 +9,15 @@ import java.util.Map;
 
 public class CalculadoraFinanceira {
 
-    /**
-     * Calcula a parcela fixa (prestação) utilizando o método Tabela Price.
-     * M = VP * [ i * (1 + i)^n ] / [ (1 + i)^n – 1 ]
-     *
-     * @param valorFinanciado Valor principal (VP)
-     * @param taxaJurosMensal Taxa de juros por período (i)
-     * @param prazoMeses Número de períodos (n)
-     * @return Valor da prestação mensal
-     */
+
+      //Calcula a parcela fixa (prestação) utilizando o método Tabela Price.
+      //M = VP * [ i * (1 + i)^n ] / [ (1 + i)^n – 1 ]
+
+      //@param valorFinanciado Valor principal (VP)
+      // @param taxaJurosMensal Taxa de juros por período (i)
+      //@param prazoMeses Número de períodos (n)
+      //@return Valor da prestação mensal
+
     public static BigDecimal calcularPrestacaoPrice(BigDecimal valorFinanciado, BigDecimal taxaJurosMensal, int prazoMeses) {
         if (valorFinanciado.compareTo(BigDecimal.ZERO) <= 0 || prazoMeses <= 0) {
             return BigDecimal.ZERO;
@@ -43,13 +43,13 @@ public class CalculadoraFinanceira {
         return prestacao.setScale(2, RoundingMode.HALF_UP);
     }
 
-    /**
-     * Gera o cronograma de amortização (Tabela Price)
-     * @param valorFinanciado Valor principal a ser financiado
-     * @param taxaJurosMensal Taxa de juros ao mês (%)
-     * @param prazoMeses Prazo em meses
-     * @return Lista de mapas contendo: "parcela", "prestacao", "juros", "amortizacao", "saldo"
-     */
+
+     //Gera o cronograma de amortização (Tabela Price)
+     //@param valorFinanciado Valor principal a ser financiado
+     //@param taxaJurosMensal Taxa de juros ao mês (%)
+     //@param prazoMeses Prazo em meses
+     //@return Lista de mapas contendo: "parcela", "prestacao", "juros", "amortizacao", "saldo"
+
     public static List<Map<String, BigDecimal>> gerarTabelaPrice(BigDecimal valorFinanciado, BigDecimal taxaJurosMensal, int prazoMeses) {
         List<Map<String, BigDecimal>> tabela = new ArrayList<>();
 

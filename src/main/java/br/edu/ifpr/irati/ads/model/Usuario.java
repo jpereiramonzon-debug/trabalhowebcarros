@@ -45,7 +45,6 @@ public class Usuario {
         tipo = "COMPRADOR"; // Define um tipo padrão
     }
 
-    // Construtor original (mantido por compatibilidade)
     public Usuario(Long id, String nome, String email, String senha) {
         this.id = id;
         this.nome = nome;
@@ -56,7 +55,6 @@ public class Usuario {
         this.tipo = "COMPRADOR";
     }
 
-    // NOVO: Construtor completo com todos os campos
     public Usuario(Long id, String nome, String email, String senha, String cpf, String telefone, String tipo) {
         this.id = id;
         this.nome = nome;
@@ -83,7 +81,7 @@ public class Usuario {
 
     public void setSenha(String senha) {this.senha = senha;}
 
-    // NOVO: Getters e Setters
+
     public String getCpf() {return cpf;}
 
     public void setCpf(String cpf) {this.cpf = cpf;}

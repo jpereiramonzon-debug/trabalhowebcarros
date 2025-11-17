@@ -68,9 +68,9 @@ public class VendaService implements Service {
         dao.salvar(venda);
     }
 
-    /**
-     * Implementação da Baixa Final (UPDATE de Status).
-     */
+
+     //Implementação da Baixa Final (UPDATE de Status).
+
     public void darBaixa(HttpServletRequest req, HttpServletResponse resp, Session session) throws ServletException, IOException {
 
         Dao<Venda> dao = new GenericDao<>(Venda.class, session);
@@ -80,21 +80,21 @@ public class VendaService implements Service {
 
         Venda venda = dao.buscarPorId(id);
 
-        // 1. Atualizar o status da Proposta vinculada para FINALIZADA
+        //Proposta vinculada para FINALIZADA
         Proposta proposta = venda.getPropostaOrigem();
         proposta.setStatusNegociacao("FINALIZADA");
         propostaDao.alterar(proposta);
 
-        // 2. Mudar o status da Venda
+        //status da Venda
         venda.setStatusVenda("CONCLUIDA");
         dao.alterar(venda);
 
         findAll(req, resp, session);
     }
 
-    /**
-     * Funcionalidade de geração de Contrato/Recibo (HTML formatado) baseado na Venda.
-     */
+
+     //Funcionalidade de geração de Contrato/Recibo (HTML formatado) baseado na Venda.
+
     public void gerarPdf(HttpServletRequest req, HttpServletResponse resp, Session session) throws ServletException, IOException {
 
         Dao<Venda> dao = new GenericDao<>(Venda.class, session);

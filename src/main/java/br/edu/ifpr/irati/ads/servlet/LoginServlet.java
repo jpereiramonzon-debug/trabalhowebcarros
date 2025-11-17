@@ -22,7 +22,6 @@ public class LoginServlet extends HttpServlet {
         String senha = req.getParameter("senha");
 
         //verificar no banco de dados se há um usuario como
-        //o informado e se sua senha está correta
         if (usuario.equals("admin") && senha.equals("admin")) {
 
             JwtProperties.loadProperties(req.getServletContext());

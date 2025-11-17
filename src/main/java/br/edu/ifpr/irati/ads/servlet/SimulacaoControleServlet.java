@@ -22,38 +22,37 @@ public class SimulacaoControleServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        // Se for um GET, apenas encaminha para a tela para exibição do formulário
         req.getRequestDispatcher("/simulacaofinanciamento.jsp").forward(req, resp);
     }
 
     private void processarSimulacao(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         try {
-            // 1. Receber parâmetros
+            //Receber parâmetros
             BigDecimal valorVeiculo = new BigDecimal(req.getParameter("valorVeiculo"));
             BigDecimal valorEntrada = new BigDecimal(req.getParameter("valorEntrada"));
             BigDecimal taxaJurosAnual = new BigDecimal(req.getParameter("taxaJuros")); // Taxa anual
             int prazoMeses = Integer.parseInt(req.getParameter("prazo"));
 
-            // 2. Cálculo
+            //Cálculo
             BigDecimal valorFinanciado = valorVeiculo.subtract(valorEntrada);
             // Converter taxa anual para mensal (taxa simples, para simplificar)
             BigDecimal taxaJurosMensal = taxaJurosAnual.divide(new BigDecimal("12"), 10, BigDecimal.ROUND_HALF_UP);
 
-            // 3. Gerar a Tabela Price
+            //Gerar a Tabela Price
             List<Map<String, BigDecimal>> tabelaPrice = CalculadoraFinanceira.gerarTabelaPrice(
                     valorFinanciado,
                     taxaJurosMensal,
                     prazoMeses
             );
 
-            // 4. Salvar resultados na requisição
+            //Salvar resultados na requisição
             req.setAttribute("tabelaPrice", tabelaPrice);
             req.setAttribute("valorFinanciado", valorFinanciado);
             req.setAttribute("valorVeiculo", valorVeiculo);
             req.setAttribute("taxaJuros", taxaJurosAnual);
             req.setAttribute("prazo", prazoMeses);
 
-            // 5. Encaminhar para a página de exibição
+            //Encaminhar para a página de exibição
             req.getRequestDispatcher("/simulacaofinanciamento.jsp").forward(req, resp);
 
         } catch (NumberFormatException e) {

@@ -100,22 +100,20 @@ public class VeiculoService implements Service{
         Veiculo veiculo = dao.buscarPorId(id);
 
         try {
-            dao.excluir(veiculo); // Tenta excluir
+            dao.excluir(veiculo);
         } catch (PersistenceException e) {
-            // Captura o erro de chave estrangeira
+            //chave estrangeira
             String errorMessage = "Impossível excluir o veículo. Ele está vinculado a uma Proposta Aceita/Finalizada ou Em Negociação.";
 
-            // 1. Define a mensagem de erro no REQUEST scope
+            //erro no REQUEST scope
             req.setAttribute("errorMessage", errorMessage);
 
-            // 2. Encaminha para a página de erro
+            //erro
             req.getRequestDispatcher("/erro.jsp").forward(req, resp);
             return; // Sai do método
         }
-
-        // Código original de sucesso (apenas se a exclusão for bem-sucedida)
         req.getSession().setAttribute("veiculo", new Veiculo());
-        req.getSession().setAttribute("veiculos", dao.buscarTodos()); // CORREÇÃO: Usando 'veiculos'
+        req.getSession().setAttribute("veiculos", dao.buscarTodos());
         resp.sendRedirect(REDIRECT_PAGE);
     }
 }
